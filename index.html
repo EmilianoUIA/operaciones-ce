@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Operaciones de Comercio Exterior — v3.1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* sombreado lateral sin bugs usando mask (mejor que ::before/::after) */
+    .scroll-x{
+      overflow-x:auto;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+              mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+    }
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0 }
+    input[type=number]{ -moz-appearance:textfield }
+    details>summary::-webkit-details-marker{ display:none }
+    /* fila con multa: todo el texto en rojo */
+    tr.has-multa td{ color:#dc2626 } /* tailwind 'text-rose-600' en css plano */
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-indigo-600"><path d="M3 5.25A2.25 2.25 0 0 1 5.25 3h3A2.25 2.25 0 0 1 10.5 5.25v3A2.25 2.25 0 0 1 8.25 10.5h-3A2.25 2.25 0 0 1 3 8.25v-3Zm8.25 0A2.25 2.25 0 0 1 13.5 3h3A2.25 2.25 0 0 1 18.75 5.25v3A2.25 2.25 0 0 1 16.5 10.5h-3a2.25 2.25 0 0 1-2.25-2.25v-3ZM3 13.5A2.25 2.25 0 0 1 5.25 11.25h3A2.25 2.25 0 0 1 10.5 13.5v3A2.25 2.25 0 0 1 8.25 19.5h-3A2.25 2.25 0 0 1 3 16.5v-3Zm8.25 0A2.25 2.25 0 0 1 13.5 11.25h3a2.25 2.25 0 0 1 2.25 2.25v3a2.25 2.25 0 0 1-2.25 2.25h-3a2.25 2.25 0 0 1-2.25-2.25v-3Z"/></svg>
+      <div>
+        <h1 class="text-xl font-semibold">Panel de Operaciones – Comercio Exterior <span class="text-slate-400 text-sm">v3.1</span></h1>
+        <p class="text-sm text-slate-500">Ajustes visuales, multas resaltadas, nuevos campos y “Desglose”.</p>
+      </div>
+      <div class="ml-auto flex gap-2">
+        <button id="btnExport" class="px-3 py-2 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-900">Exportar CSV</button>
+        <label class="px-3 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm cursor-pointer hover:bg-slate-200">Importar CSV
+          <input id="fileImport" type="file" accept=".csv" class="hidden" />
+        </label>
+        <button id="btnClear" class="px-3 py-2 rounded-xl bg-rose-600/90 text-white text-sm hover:bg-rose-700" title="Borrar datos locales">Limpiar datos</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-4 space-y-6">
+
+    <!-- ========================== SECCIÓN 1: NUEVA OPERACIÓN ========================== -->
+    <section class="bg-white rounded-2xl shadow p-4 md:p-6">
+      <h2 class="text-lg font-semibold mb-4">Nueva operación</h2>
+      <form id="opForm" class="grid md:grid-cols-4 gap-4">
+        <!-- Identificación -->
+        <div>
+          <label class="block text-sm mb-1">Referencia</label>
+          <input required id="ref" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="ID / Orden" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">Nombre del ejecutivo</label>
+          <input required id="ejecutivo" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ej. María López" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">Importador</label>
+          <input id="importador" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Empresa" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">Contacto</label>
+          <input id="contacto" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Cliente" />
+        </div>
+
+        <!-- Fechas y estado -->
+        <div>
+          <label class="block text-sm mb-1">Fecha de llegada/ETA</label>
+          <input id="f_llegada" type="date" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">Fecha de modulación</label>
+          <input id="f_modulacion" type="date" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">Fecha enviada a facturar (contabilidad)</label>
+          <input id="f_facturacion" type="date" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">Semáforo fiscal</label>
+          <select id="semaforo" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="Verde">Verde</option>
+            <option value="Amarillo">Amarillo</option>
+            <option value="Rojo">Rojo</option>
+          </select>
+        </div>
+
+        <!-- Datos operativos -->
+        <div>
+          <label class="block text-sm mb-1">Nº de contenedor/Guía</label>
+          <input id="contenedor" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ej. TGHU1234567 / Guía" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">Nº de pedimento</label>
+          <input id="pedimento" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ej. 22 12 1234 5678901" />
+        </div>
+
+        <!-- Tipo de operación -->
+        <div>
+          <label class="block text-sm mb-1">Tipo de operación</label>
+          <select id="tipo_operacion" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="A1">A1</option>
+            <option value="M3">M3</option>
+            <option value="T3">T3</option>
+            <option value="A4">A4</option>
+            <option value="IN">IN</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <input id="tipo_operacion_otro" type="text" class="mt-2 w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 hidden" placeholder="Especifica el tipo" />
+        </div>
+
+        <!-- Anticipo y multas -->
+        <div>
+          <label class="block text-sm mb-1">Anticipo</label>
+          <input id="anticipo" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-right" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1">Multas</label>
+          <select id="multas_tipo" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="ninguna">Ninguna</option>
+            <option value="multa">Multa</option>
+            <option value="PAMA">PAMA</option>
+            <option value="otro">Otro</option>
+          </select>
+          <input id="multas_detalle" type="text" class="mt-2 w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 hidden" placeholder="Especifica la multa" />
+        </div>
+      </form>
+    </section>
+
+    <!-- ========================== SECCIÓN 2: DESGLOSE ========================== -->
+    <section class="bg-white rounded-2xl shadow p-4 md:p-6">
+      <h2 class="text-lg font-semibold mb-4">Detalle de gastos</h2>
+      <details class="bg-slate-50 rounded-xl border border-slate-200 open">
+        <summary class="cursor-pointer px-4 py-3 flex items-center justify-between">
+          <span class="font-medium">Desglose</span>
+          <span class="text-sm text-slate-500">Gastos totales: <span id="gastos_total_preview" class="font-semibold">$0.00</span></span>
+        </summary>
+        <div class="p-4 grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div><label class="block text-sm mb-1">Impuestos</label><input id="g_impuestos" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Agencia aduanal</label><input id="g_agencia" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Maniobras</label><input id="g_maniobras" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Fletes</label><input id="g_fletes" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Burreo</label><input id="g_burreo" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Tarifas extra</label><input id="g_tarifas_extra" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Grúa</label><input id="g_grua" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Almacenaje</label><input id="g_almacenaje" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Maniobra carga</label><input id="g_maniobra_carga" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Maniobra descarga</label><input id="g_maniobra_descarga" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Desconsolidación</label><input id="g_desconsolidacion" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Consolidación</label><input id="g_consolidacion" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Previo</label><input id="g_previo" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+          <div><label class="block text-sm mb-1">Inspección</label><input id="g_inspeccion" type="number" step="0.01" min="0" value="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+        </div>
+      </details>
+
+      <!-- Botones movidos aquí -->
+      <div class="mt-4 flex items-end gap-2">
+        <button class="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700" type="button" id="btnAdd">Agregar</button>
+        <button class="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600 hidden" type="button" id="btnUpdate">Guardar cambios</button>
+        <button class="px-4 py-2 rounded-xl bg-slate-200 text-slate-800 hover:bg-slate-300 hidden" type="button" id="btnCancel">Cancelar</button>
+        <p class="text-sm text-slate-500 ml-auto">Saldo = Gastos totales − Anticipo.</p>
+      </div>
+    </section>
+
+    <!-- ========================== SECCIÓN 3: LISTA DE OPERACIONES ========================== -->
+    <section class="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+      <div class="flex items-center gap-2 bg-white rounded-2xl shadow px-3 py-2 w-full md:w-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-slate-500"><path d="M10.5 3.75a6.75 6.75 0 1 1 0 13.5 6.75 6.75 0 0 1 0-13.5Zm11.22 16.28-3.9-3.9a9 9 0 1 0-1.06 1.06l3.9 3.9a.75.75 0 1 0 1.06-1.06Z"/></svg>
+        <input id="search" type="text" placeholder="Buscar por referencia, ejecutivo, importador…" class="outline-none w-full" />
+      </div>
+      <div class="flex gap-2 ml-auto">
+        <select id="filterSemaforo" class="bg-white rounded-xl shadow px-3 py-2">
+          <option value="">Semáforo: Todos</option>
+          <option>Verde</option>
+          <option>Amarillo</option>
+          <option>Rojo</option>
+        </select>
+        <select id="filterEstado" class="bg-white rounded-xl shadow px-3 py-2">
+          <option value="">Estado: Todos</option>
+          <option value="saldo">Saldo a favor (≤ 0)</option>
+          <option value="deuda">Deuda (&gt; 0)</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow overflow-hidden">
+      <div class="scroll-x">
+        <table class="min-w-full text-sm" id="tablaOps">
+          <thead class="bg-slate-100 text-slate-700">
+            <tr>
+              <th class="px-3 py-2 text-left">#</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="ref">Referencia</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="importador">Importador</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="ejecutivo">Ejecutivo</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="contacto">Contacto</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="contenedor">Nº Contenedor/Guía</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="pedimento">Nº Pedimento</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="f_llegada">F. llegada/ETA</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="f_modulacion">F. modulación</th>
+              <th class="px-3 py-2 text-left">Semáforo</th>
+              <th class="px-3 py-2 text-right cursor-pointer sort" data-key="anticipo">Anticipo</th>
+              <th class="px-3 py-2 text-right cursor-pointer sort" data-key="gastos_total">Gastos</th>
+              <th class="px-3 py-2 text-right">Saldo</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="f_facturacion">F. facturación</th>
+              <th class="px-3 py-2 text-left cursor-pointer sort" data-key="multas_tipo">Multas</th>
+              <th class="px-3 py-2 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody" class="divide-y divide-slate-100"></tbody>
+          <tfoot class="bg-slate-50">
+            <tr class="font-medium">
+              <td colspan="10" class="px-3 py-3 text-right">Totales:</td>
+              <td id="tAnticipo" class="px-3 py-3 text-right">$0.00</td>
+              <td id="tGastos" class="px-3 py-3 text-right">$0.00</td>
+              <td id="tPendiente" class="px-3 py-3 text-right">$0.00</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="text-xs text-slate-500 space-y-1">
+      <p>Los datos se guardan en <strong>localStorage</strong>. Exporta/Importa CSV para compartir/respaldar.</p>
+      <p>Saldo en <span class="text-emerald-600 font-medium">verde</span> si ≤ 0 (saldo a favor) y <span class="text-rose-600 font-medium">rojo</span> si &gt; 0 (deuda).</p>
+    </section>
+  </main>
+
+  <!-- ========================== TEMPLATE FILA ========================== -->
+  <template id="rowTemplate">
+    <tr>
+      <td class="px-3 py-2 align-top text-slate-400">1</td>
+      <td class="px-3 py-2 align-top font-medium"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top text-right"></td>
+      <td class="px-3 py-2 align-top text-right"></td>
+      <td class="px-3 py-2 align-top text-right"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top text-right">
+        <button class="text-indigo-600 hover:underline mr-2 btn-edit">Editar</button>
+        <button class="text-rose-600 hover:underline btn-delete">Eliminar</button>
+      </td>
+    </tr>
+  </template>
+
+  <!-- ========================== JS: LÓGICA ========================== -->
+  <script>
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+
+    const state = { ops: [], sortKey: null, sortDir: 1, editIndex: null };
+
+    const fmt = (n) => Number(n || 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+    const parseNum = (v) => isFinite(parseFloat(v)) ? parseFloat(v) : 0;
+
+    const G_KEYS = [
+      'g_impuestos','g_agencia','g_maniobras','g_fletes','g_burreo','g_tarifas_extra',
+      'g_grua','g_almacenaje','g_maniobra_carga','g_maniobra_descarga','g_desconsolidacion','g_consolidacion',
+      'g_previo','g_inspeccion'
+    ];
+
+    function sumGastos(op){ return +(G_KEYS.reduce((a,k)=> a + parseNum(op[k]), 0)).toFixed(2); }
+    function pendiente(op){ return +(sumGastos(op) - parseNum(op.anticipo)).toFixed(2); }
+
+    function save(){ localStorage.setItem('ops_cex_v3_1', JSON.stringify(state.ops)); }
+    function load(){ state.ops = JSON.parse(localStorage.getItem('ops_cex_v3_1') || '[]'); }
+
+    function paintSemaforo(val){
+      const map = { 'Verde':'bg-emerald-100 text-emerald-700', 'Amarillo':'bg-amber-100 text-amber-700', 'Rojo':'bg-rose-100 text-rose-700' };
+      const dot = { 'Verde':'bg-emerald-500', 'Amarillo':'bg-amber-500', 'Rojo':'bg-rose-500' };
+      return `<span class="inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs ${map[val]||'bg-slate-100 text-slate-600'}"><span class="w-2 h-2 rounded-full ${dot[val]||'bg-slate-400'}"></span>${val||'-'}</span>`;
+    }
+
+    function render(){
+      const tbody = $('#tbody');
+      tbody.innerHTML = '';
+
+      const q = $('#search').value.trim().toLowerCase();
+      const fSem = $('#filterSemaforo').value;
+      const fEst = $('#filterEstado').value;
+
+      let rows = state.ops.map((op, idx)=> ({...op, idx, gastos_total: sumGastos(op), pendiente: pendiente(op)}));
+
+      if (q) rows = rows.filter(r =>
+        (r.ref||'').toLowerCase().includes(q) ||
+        (r.ejecutivo||'').toLowerCase().includes(q) ||
+        (r.importador||'').toLowerCase().includes(q)
+      );
+      if (fSem) rows = rows.filter(r => (r.semaforo||'') === fSem);
+      if (fEst) rows = rows.filter(r => fEst==='saldo' ? r.pendiente <= 0 : r.pendiente > 0);
+
+      if (state.sortKey){
+        rows.sort((a,b)=>{
+          const k = state.sortKey; const dir = state.sortDir;
+          const numeric = ['anticipo','gastos_total'];
+          const na = numeric.includes(k) ? parseNum(a[k]) : (a[k]||'');
+          const nb = numeric.includes(k) ? parseNum(b[k]) : (b[k]||'');
+          if (na<nb) return -1*dir; if (na>nb) return 1*dir; return 0;
+        });
+      }
+
+      const tpl = $('#rowTemplate');
+      rows.forEach((r,i)=>{
+        const tr = tpl.content.firstElementChild.cloneNode(true);
+        const multa = r.multas_tipo && r.multas_tipo !== 'ninguna';
+
+        let c = tr.children;
+        c[0].textContent = i+1;
+        c[1].textContent = r.ref||'';
+        c[2].textContent = r.importador||'';
+        c[3].textContent = r.ejecutivo||'';
+        c[4].textContent = r.contacto||'';
+        c[5].textContent = r.contenedor||'';
+        c[6].textContent = r.pedimento||'';
+        c[7].textContent = r.f_llegada||'';
+        c[8].textContent = r.f_modulacion||'';
+        c[9].innerHTML = paintSemaforo(r.semaforo);
+        c[10].textContent = fmt(r.anticipo);
+        c[11].textContent = fmt(r.gastos_total);
+        // saldo: si hay multa, fuerza rojo
+        c[12].innerHTML = `<span class="font-medium ${multa ? 'text-rose-600' : (r.pendiente<=0?'text-emerald-600':'text-rose-600')}">${fmt(r.pendiente)}</span>`;
+        c[13].textContent = r.f_facturacion||'';
+        c[14].textContent = r.multas_tipo==='otro' ? `Otro: ${r.multas_detalle||''}` : (r.multas_tipo||'ninguna');
+
+        if (multa) tr.classList.add('has-multa');
+
+        tr.querySelector('.btn-edit').addEventListener('click', ()=> startEdit(r.idx));
+        tr.querySelector('.btn-delete').addEventListener('click', ()=> delRow(r.idx));
+
+        tbody.appendChild(tr);
+      });
+
+      const sum = (k) => rows.reduce((acc, r)=> acc + parseNum(r[k]), 0);
+      $('#tAnticipo').textContent = fmt(sum('anticipo'));
+      $('#tGastos').textContent = fmt(sum('gastos_total'));
+      $('#tPendiente').textContent = fmt(rows.reduce((a,r)=> a + r.pendiente, 0));
+
+      $$('.sort').forEach(th => th.innerHTML = th.textContent.replace(/[↓↑]\s*$/,'') + (state.sortKey===th.dataset.key ? (state.sortDir>0?' ↑':' ↓') : ''));
+    }
+
+    function clearForm(){
+      $('#opForm').reset();
+      $('#anticipo').value = 0;
+      ['#tipo_operacion_otro','#multas_detalle'].forEach(sel=> { $(sel).classList.add('hidden'); $(sel).value = ''; });
+      G_KEYS.forEach(k => $('#'+k).value = 0);
+      updateGastosPreview();
+    }
+
+    function collectOp(){
+      const op = {
+        ref: $('#ref').value.trim(),
+        ejecutivo: $('#ejecutivo').value.trim(),
+        importador: $('#importador').value.trim(),
+        contacto: $('#contacto').value.trim(),
+        contenedor: $('#contenedor').value.trim(),
+        pedimento: $('#pedimento').value.trim(),
+        f_llegada: $('#f_llegada').value,
+        f_modulacion: $('#f_modulacion').value,
+        f_facturacion: $('#f_facturacion').value,
+        semaforo: $('#semaforo').value,
+        anticipo: parseNum($('#anticipo').value),
+        tipo_operacion: $('#tipo_operacion').value,
+        tipo_operacion_otro: $('#tipo_operacion_otro').value.trim(),
+        multas_tipo: $('#multas_tipo').value,
+        multas_detalle: $('#multas_detalle').value.trim()
+      };
+      G_KEYS.forEach(k => op[k] = parseNum($('#'+k).value));
+      return op;
+    }
+
+    function populateForm(op){
+      $('#ref').value = op.ref||'';
+      $('#ejecutivo').value = op.ejecutivo||'';
+      $('#importador').value = op.importador||'';
+      $('#contacto').value = op.contacto||'';
+      $('#contenedor').value = op.contenedor||'';
+      $('#pedimento').value = op.pedimento||'';
+      $('#f_llegada').value = op.f_llegada||'';
+      $('#f_modulacion').value = op.f_modulacion||'';
+      $('#f_facturacion').value = op.f_facturacion||'';
+      $('#semaforo').value = op.semaforo||'Verde';
+      $('#anticipo').value = op.anticipo||0;
+      $('#tipo_operacion').value = op.tipo_operacion||'A1';
+      $('#tipo_operacion_otro').value = op.tipo_operacion_otro||'';
+      $('#tipo_operacion_otro').classList.toggle('hidden', $('#tipo_operacion').value !== 'Otros');
+      $('#multas_tipo').value = op.multas_tipo||'ninguna';
+      $('#multas_detalle').value = op.multas_detalle||'';
+      $('#multas_detalle').classList.toggle('hidden', $('#multas_tipo').value !== 'otro');
+      G_KEYS.forEach(k => $('#'+k).value = op[k]||0);
+      updateGastosPreview();
+    }
+
+    function addOrUpdate(){
+      const op = collectOp();
+      if (!op.ref){ alert('La referencia es obligatoria.'); return; }
+      if (state.editIndex!=null){ state.ops[state.editIndex] = op; }
+      else { state.ops.push(op); }
+      save(); endEdit(); render();
+    }
+
+    function startEdit(idx){
+      state.editIndex = idx;
+      populateForm(state.ops[idx]);
+      $('#btnAdd').classList.add('hidden');
+      $('#btnUpdate').classList.remove('hidden');
+      $('#btnCancel').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function endEdit(){
+      state.editIndex = null;
+      clearForm();
+      $('#btnAdd').classList.remove('hidden');
+      $('#btnUpdate').classList.add('hidden');
+      $('#btnCancel').classList.add('hidden');
+    }
+
+    function delRow(idx){ if (!confirm('¿Eliminar esta operación?')) return; state.ops.splice(idx,1); save(); render(); }
+
+    // Eventos
+    $$('.sort').forEach(th => th.addEventListener('click', ()=>{
+      const key = th.dataset.key;
+      if (state.sortKey === key) state.sortDir *= -1; else { state.sortKey = key; state.sortDir = 1; }
+      render();
+    }));
+    $('#search').addEventListener('input', render);
+    $('#filterSemaforo').addEventListener('change', render);
+    $('#filterEstado').addEventListener('change', render);
+
+    // botones (reubicados)
+    $('#btnAdd').addEventListener('click', addOrUpdate);
+    $('#btnUpdate').addEventListener('click', addOrUpdate);
+    $('#btnCancel').addEventListener('click', endEdit);
+
+    // Mostrar/ocultar campos “Otros” y “otro”
+    $('#tipo_operacion').addEventListener('change', ()=>{
+      const show = $('#tipo_operacion').value === 'Otros';
+      $('#tipo_operacion_otro').classList.toggle('hidden', !show);
+      if (!show) $('#tipo_operacion_otro').value = '';
+    });
+    $('#multas_tipo').addEventListener('change', ()=>{
+      const show = $('#multas_tipo').value === 'otro';
+      $('#multas_detalle').classList.toggle('hidden', !show);
+      if (!show) $('#multas_detalle').value = '';
+    });
+
+    // Gastos preview
+    function updateGastosPreview(){
+      const temp = collectOp();
+      $('#gastos_total_preview').textContent = fmt(sumGastos(temp));
+    }
+    ['#anticipo'].concat(G_KEYS.map(k=>'#'+k)).forEach(sel=> $(sel).addEventListener('input', updateGastosPreview));
+
+    // Export CSV
+    $('#btnExport').addEventListener('click', ()=>{
+      const headers = [
+        'ref','ejecutivo','importador','contacto','contenedor','pedimento',
+        'f_llegada','f_modulacion','f_facturacion','semaforo','anticipo',
+        'tipo_operacion','tipo_operacion_otro',
+        'multas_tipo','multas_detalle',
+        ...G_KEYS,'gastos_total','pendiente'
+      ];
+      const lines = [headers.join(',')];
+      state.ops.forEach(op=>{
+        const gtotal = sumGastos(op); const pend = pendiente(op);
+        const row = headers.map(h => {
+          const v = (h==='gastos_total')? gtotal : (h==='pendiente')? pend : (op[h]??'');
+          const s = v.toString();
+          return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+        }).join(',');
+        lines.push(row);
+      });
+      const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'operaciones_cex_v3_1.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // Import CSV
+    $('#fileImport').addEventListener('change', (e)=>{
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = reader.result;
+        const lines = text.split(/\r?\n/).filter(Boolean);
+        const headers = lines.shift().split(',').map(h=>h.trim());
+        const idx = (k)=> headers.indexOf(k);
+        const ops = lines.map(line=>{
+          const cells = []; let cur = '', inside = false;
+          for (let i=0;i<line.length;i++){
+            const ch = line[i];
+            if (ch=='"'){ if (inside && line[i+1]=='"'){cur+='"'; i++;} else inside = !inside; }
+            else if (ch===',' && !inside){ cells.push(cur); cur=''; }
+            else cur += ch;
+          } cells.push(cur);
+          const get = (k, num=false) => { const v = cells[idx(k)] ?? ''; return num ? parseNum(v) : v; };
+          const op = {
+            ref: get('ref'),
+            ejecutivo: get('ejecutivo'),
+            importador: get('importador'),
+            contacto: get('contacto'),
+            contenedor: get('contenedor'),
+            pedimento: get('pedimento'),
+            f_llegada: get('f_llegada'),
+            f_modulacion: get('f_modulacion'),
+            f_facturacion: get('f_facturacion'),
+            semaforo: get('semaforo'),
+            anticipo: get('anticipo', true),
+            tipo_operacion: get('tipo_operacion'),
+            tipo_operacion_otro: get('tipo_operacion_otro'),
+            multas_tipo: get('multas_tipo'),
+            multas_detalle: get('multas_detalle')
+          };
+          G_KEYS.forEach(k => op[k] = get(k, true));
+          return op;
+        });
+        state.ops = ops; save(); render();
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    // Limpiar datos
+    $('#btnClear').addEventListener('click', ()=>{
+      if (!confirm('Esto borrará todas las operaciones v3.1 guardadas localmente.')) return;
+      localStorage.removeItem('ops_cex_v3_1'); load(); render();
+    });
+
+    // Boot
+    load();
+    render();
+    updateGastosPreview();
+  </script>
+</body>
+</html>
