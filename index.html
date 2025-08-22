@@ -3,84 +3,107 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Operaciones de Comercio Exterior — v4.2.0</title>
+  <title>Operaciones de Comercio Exterior — v5.1.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* scroll horizontal con máscara suave */
-    .scroll-x{ overflow-x:auto;
-      -webkit-mask-image:linear-gradient(to right,transparent,#000 24px,#000 calc(100% - 24px),transparent);
-              mask-image:linear-gradient(to right,transparent,#000 24px,#000 calc(100% - 24px),transparent);
-    }
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0 }
-    input[type=number]{ -moz-appearance:textfield }
-
-    tr.has-multa td{ color:#dc2626 } /* multa en rojo */
-
-    /* fila con ETA hoy */
-    .today-eta { background:#0f172a; color:#fff; }
-    .today-eta td, .today-eta td * { color:#fff !important; }
-    .today-eta .badge{ background:rgba(255,255,255,.15); color:#fff !important; }
-
-    /* Tabs */
-    .tabbar{ display:flex; gap:.5rem; align-items:center }
-    .tabbtn{ border:1px solid #e5e7eb; background:#f6f8fc; color:#1f2937; padding:.5rem 1rem; border-radius:.75rem; font-weight:700 }
-    .tabbtn.active{ background:#f59e0b; border-color:#f59e0b; color:#111827 }
-    .tabpanel{ display:none } .tabpanel.active{ display:block }
-
-    /* Botones */
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border:1px solid transparent }
-    .btn-amber{ background:#f59e0b; border-color:#f59e0b; color:#111827; font-weight:700 }
-    .btn-amber:hover{ background:#fbbf24; border-color:#fbbf24 }
-    .btn-dark{ background:#0f172a; border-color:#0f172a; color:#fff; font-weight:600 }
-    .btn-dark:hover{ background:#111827; border-color:#111827 }
-
-    /* badges */
-    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:.75rem; font-weight:700 }
-    .b-green{ background:#dcfce7; color:#065f46 }
-    .b-yellow{ background:#fef3c7; color:#92400e }
-    .b-red{ background:#fee2e2; color:#991b1b }
+    .scroll-x{overflow-x:auto;-webkit-mask-image:linear-gradient(to right,transparent,#000 24px,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(to right,transparent,#000 24px,#000 calc(100% - 24px),transparent)}
+    input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    input[type=number]{-moz-appearance:textfield}
+    details>summary::-webkit-details-marker{display:none}
+    tr.has-multa td{color:#dc2626}
+    #tbody tr:nth-child(even){background:#f8fafc}
+    #tbody tr:nth-child(odd){background:#fff}
+    tr.last-opened{background:#e0f2fe!important}
+    .row-eta-green td{color:#047857;font-weight:700}
+    .row-completed{background:#ecfdf5!important}
+    .ce-tabs{display:flex;gap:.5rem;align-items:center}
+    .ce-tab-btn{border:1px solid #d9dfea;background:#f6f8fc;color:#2b3a55;padding:.5rem 1rem;border-radius:10px;cursor:pointer;font-weight:600}
+    .ce-tab-btn.active{background:#4f46e5;color:#fff;border-color:#4f46e5}
+    .ce-panel{display:none}
+    .ce-panel.active{display:block}
+    .badge-yellow{background:#fef9c3}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal.open{display:flex}
   </style>
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-800">
-  <!-- ===== HEADER ===== -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-indigo-600"><path d="M3 5.25A2.25 2.25 0 0 1 5.25 3h3A2.25 2.25 0 0 1 10.5 5.25v3A2.25 2.25 0 0 1 8.25 10.5h-3A2.25 2.25 0 0 1 3 8.25v-3Zm8.25 0A2.25 2.25 0 0 1 13.5 3h3A2.25 2.25 0 0 1 18.75 5.25v3A2.25 2.25 0 0 1 16.5 10.5h-3a2.25 2.25 0 0 1-2.25-2.25v-3ZM3 13.5A2.25 2.25 0 0 1 5.25 11.25h3A2.25 2.25 0 0 1 10.5 13.5v3A2.25 2.25 0 0 1 8.25 19.5h-3A2.25 2.25 0 0 1 3 16.5v-3Zm8.25 0A2.25 2.25 0 0 1 13.5 11.25h3a2.25 2.25 0 0 1 2.25 2.25v3a2.25 2.25 0 0 1-2.25 2.25h-3a2.25 2.25 0 0 1-2.25-2.25v-3Z"/></svg>
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-indigo-600">
+        <path d="M3 5.25A2.25 2.25 0 0 1 5.25 3h3A2.25 2.25 0 0 1 10.5 5.25v3A2.25 2.25 0 0 1 8.25 10.5h-3A2.25 2.25 0 0 1 3 8.25v-3Zm8.25 0A2.25 2.25 0 0 1 13.5 3h3A2.25 2.25 0 0 1 18.75 5.25v3A2.25 2.25 0 0 1 16.5 10.5h-3a2.25 2.25 0 0 1-2.25-2.25v-3ZM3 13.5A2.25 2.25 0 0 1 5.25 11.25h3A2.25 2.25 0 0 1 10.5 13.5v3A2.25 2.25 0 0 1 8.25 19.5h-3A2.25 2.25 0 0 1 3 16.5v-3Zm8.25 0A2.25 2.25 0 0 1 13.5 11.25h3a2.25 2.25 0 0 1 2.25 2.25v3a2.25 2.25 0 0 1-2.25 2.25h-3a2.25 2.25 0 0 1-2.25-2.25v-3Z"/>
+      </svg>
+
       <div>
-        <h1 class="text-[1.05rem] font-semibold">Panel de Operaciones – Comercio Exterior
-          <span class="text-slate-400">v4.2.0</span></h1>
-        <p class="text-xs text-slate-500">ETA de hoy con scroll, orden por reciente, notas con autoguardado y saldo por cliente.</p>
+        <h1 class="text-xl font-semibold">
+          Panel de Operaciones – Comercio Exterior
+          <span class="text-slate-400 text-sm">v5.1.1</span>
+        </h1>
+        <p class="text-sm text-slate-500">Correcciones de estabilidad, CSF/Clientes, revalidación, notas por operación, botón global “Actualizar”, cotización PDF.</p>
       </div>
 
-      <!-- Tabs -->
-      <div class="tabbar ml-6">
-        <button id="tabOps" class="tabbtn active">Operaciones</button>
-        <button id="tabDU"  class="tabbtn">Datos útiles</button>
+      <div class="ml-auto ce-tabs">
+        <button id="tabOps" class="ce-tab-btn active">Operaciones</button>
+        <button id="tabDU"  class="ce-tab-btn">Datos útiles</button>
       </div>
 
-      <!-- Acciones -->
-      <div class="ml-auto flex gap-2">
-        <button id="btnExport" class="btn btn-dark px-3 py-2 rounded-xl text-sm">Exportar CSV</button>
-        <label class="btn btn-dark px-3 py-2 rounded-xl text-sm cursor-pointer">
-          Importar CSV
+      <button id="btnGlobalRefresh" class="ml-2 px-3 py-2 rounded-xl bg-slate-600 text-white text-sm hover:bg-slate-700">Actualizar</button>
+
+      <div class="ml-2 flex gap-2">
+        <button id="btnExport" class="px-3 py-2 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-900">Exportar CSV</button>
+        <label class="px-3 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm cursor-pointer hover:bg-slate-200">Importar CSV
           <input id="fileImport" type="file" accept=".csv" class="hidden" />
         </label>
-        <button id="btnClear" class="btn btn-dark px-3 py-2 rounded-xl text-sm">Limpiar datos</button>
+        <button id="btnClear" class="px-3 py-2 rounded-xl bg-rose-600/90 text-white text-sm hover:bg-rose-700" title="Borrar datos locales">Limpiar datos</button>
       </div>
     </div>
   </header>
 
   <main class="max-w-7xl mx-auto p-4 space-y-6">
-    <!-- ===== PESTAÑA: OPERACIONES ===== -->
-    <section id="panelOps" class="tabpanel active space-y-6">
+    <!-- ========================= OPERACIONES ========================= -->
+    <section id="panelOps" class="ce-panel active space-y-6">
+      <!-- CLIENTES (CSF) -->
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h3 class="font-semibold">Registrar/administrar clientes (CSF mensual)</h3>
+        <p class="text-xs text-slate-500">La CSF se debe actualizar el <strong>día 1</strong> de cada mes. Si no está vigente, no podrás guardar una operación con ese cliente.</p>
+        <div class="grid md:grid-cols-3 gap-3 mt-3">
+          <div>
+            <label class="block text-sm mb-1">Nombre del cliente</label>
+            <input id="cli_nombre" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Cliente S.A. de C.V." />
+            <input id="cli_edit_i" type="hidden" />
+          </div>
+          <div>
+            <label class="block text-sm mb-1">CSF (PDF)</label>
+            <input id="cli_csf" type="file" accept="application/pdf" class="w-full rounded-xl border-slate-300" />
+            <div class="text-[11px] text-slate-400 mt-1">Se guarda fecha y nombre del archivo.</div>
+          </div>
+          <div class="flex items-end">
+            <button id="cli_guardar" class="px-4 py-2 rounded-xl bg-yellow-500 text-white hover:bg-yellow-600 w-full">Guardar / Actualizar</button>
+          </div>
+        </div>
 
-      <!-- 1. Nueva operación -->
+        <div class="scroll-x mt-4">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-100">
+              <tr>
+                <th class="px-2 py-2 text-left">Cliente</th>
+                <th class="px-2 py-2 text-left">CSF archivo</th>
+                <th class="px-2 py-2 text-left">Actualizado</th>
+                <th class="px-2 py-2 text-left">Estado</th>
+                <th class="px-2 py-2 text-left">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cliTabla"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- NUEVA OPERACIÓN -->
       <section class="bg-white rounded-2xl shadow p-4 md:p-6">
         <h2 class="text-lg font-semibold mb-4">Nueva operación</h2>
         <form id="opForm" class="grid md:grid-cols-4 gap-4">
-          <!-- identificación -->
+          <!-- Identificación -->
           <div>
             <label class="block text-sm mb-1">Referencia</label>
             <input required id="ref" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="ID / Orden" />
@@ -94,14 +117,21 @@
             <input id="importador" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Empresa" />
           </div>
           <div>
-            <label class="block text-sm mb-1">Contacto</label>
-            <input id="contacto" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Cliente" />
+            <label class="block text-sm mb-1">Contacto (cliente)</label>
+            <select id="contactoSel" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500">
+              <option value="">Selecciona cliente…</option>
+            </select>
+            <div id="contactoWarn" class="text-xs text-rose-600 mt-1 hidden">CSF no actualizada</div>
           </div>
 
-          <!-- fechas -->
+          <!-- Fechas y estado -->
           <div>
             <label class="block text-sm mb-1">Fecha de llegada/ETA</label>
             <input id="f_llegada" type="date" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-sm mb-1">Fecha de revalidación</label>
+            <input id="f_revalidacion" type="date" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" />
           </div>
           <div>
             <label class="block text-sm mb-1">Fecha de modulación</label>
@@ -114,11 +144,14 @@
           <div>
             <label class="block text-sm mb-1">Semáforo fiscal</label>
             <select id="semaforo" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500">
-              <option>Verde</option><option>Amarillo</option><option>Rojo</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Verde">Verde</option>
+              <option value="Amarillo">Amarillo</option>
+              <option value="Rojo">Rojo</option>
             </select>
           </div>
 
-          <!-- operativos -->
+          <!-- Datos operativos -->
           <div>
             <label class="block text-sm mb-1">Nº de contenedor/Guía</label>
             <input id="contenedor" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ej. TGHU1234567 / Guía" />
@@ -127,20 +160,26 @@
             <label class="block text-sm mb-1">Nº de pedimento</label>
             <input id="pedimento" type="text" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ej. 22 12 1234 5678901" />
           </div>
+
+          <!-- Tipo de operación -->
           <div>
             <label class="block text-sm mb-1">Tipo de operación</label>
             <select id="tipo_operacion" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500">
-              <option>A1</option><option>M3</option><option>T3</option><option>A4</option><option>IN</option><option>Otros</option>
+              <option value="A1">A1</option>
+              <option value="M3">M3</option>
+              <option value="T3">T3</option>
+              <option value="A4">A4</option>
+              <option value="IN">IN</option>
+              <option value="Otros">Otros</option>
             </select>
             <input id="tipo_operacion_otro" type="text" class="mt-2 w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 hidden" placeholder="Especifica el tipo" />
           </div>
+
+          <!-- Anticipo y multas -->
           <div>
             <label class="block text-sm mb-1">Anticipo</label>
-            <input id="anticipo" type="text" inputmode="decimal" value="0"
-                   class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-right" />
+            <input id="anticipo" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-right" />
           </div>
-
-          <!-- multas -->
           <div>
             <label class="block text-sm mb-1">Multas</label>
             <select id="multas_tipo" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500">
@@ -152,45 +191,46 @@
             <input id="multas_detalle" type="text" class="mt-2 w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 hidden" placeholder="Especifica la multa" />
           </div>
         </form>
+
+        <div class="mt-3 flex items-center justify-between">
+          <p class="text-sm text-slate-500">Saldo = Gastos totales − Anticipo. <span class="ml-2">Gastos totales: <strong id="gastos_total_preview">$0.00</strong></span></p>
+          <div class="flex items-center gap-2">
+            <button id="btnPDF" class="px-3 py-2 rounded-xl bg-slate-700 text-white text-sm hover:bg-slate-800">Generar PDF (cotización)</button>
+            <button class="px-4 py-2 rounded-xl bg-yellow-500 text-white hover:bg-yellow-600" type="button" id="btnAdd">Agregar</button>
+            <button class="px-4 py-2 rounded-xl bg-yellow-500 text-white hover:bg-yellow-600 hidden" type="button" id="btnUpdate">Guardar</button>
+            <button class="px-4 py-2 rounded-xl bg-slate-200 text-slate-800 hover:bg-slate-300 hidden" type="button" id="btnCancel">Cancelar</button>
+          </div>
+        </div>
       </section>
 
-      <!-- 2. Detalle de gastos -->
+      <!-- DETALLE DE GASTOS -->
       <section class="bg-white rounded-2xl shadow p-4 md:p-6">
         <h2 class="text-lg font-semibold mb-4">Detalle de gastos</h2>
         <details class="bg-slate-50 rounded-xl border border-slate-200 open">
           <summary class="cursor-pointer px-4 py-3 flex items-center justify-between">
             <span class="font-medium">Desglose</span>
-            <span class="text-sm text-slate-500">Gastos totales:
-              <span id="gastos_total_preview" class="font-semibold">$0.00</span></span>
           </summary>
           <div class="p-4 grid md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <!-- Todos como TEXT para dar formato de dinero -->
-            <div><label class="block text-sm mb-1">Impuestos</label><input id="g_impuestos" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Agencia aduanal</label><input id="g_agencia" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Maniobras</label><input id="g_maniobras" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Fletes</label><input id="g_fletes" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Burreo</label><input id="g_burreo" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Tarifas extra</label><input id="g_tarifas_extra" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Grúa</label><input id="g_grua" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Almacenaje</label><input id="g_almacenaje" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Maniobra carga</label><input id="g_maniobra_carga" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Maniobra descarga</label><input id="g_maniobra_descarga" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Desconsolidación</label><input id="g_desconsolidacion" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Consolidación</label><input id="g_consolidacion" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Previo</label><input id="g_previo" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
-            <div><label class="block text-sm mb-1">Inspección</label><input id="g_inspeccion" type="text" inputmode="decimal" value="0" class="money w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Impuestos</label><input id="g_impuestos" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Agencia aduanal</label><input id="g_agencia" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Maniobras</label><input id="g_maniobras" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Fletes</label><input id="g_fletes" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Burreo</label><input id="g_burreo" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Tarifas extra</label><input id="g_tarifas_extra" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Grúa</label><input id="g_grua" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Almacenaje</label><input id="g_almacenaje" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Maniobra carga</label><input id="g_maniobra_carga" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Maniobra descarga</label><input id="g_maniobra_descarga" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Desconsolidación</label><input id="g_desconsolidacion" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Consolidación</label><input id="g_consolidacion" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Previo</label><input id="g_previo" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Inspección</label><input id="g_inspeccion" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
+            <div><label class="block text-sm mb-1">Custodia</label><input id="g_custodia" type="number" step="0.01" min="0" class="w-full rounded-xl border-slate-300 focus:ring-indigo-500 text-right" /></div>
           </div>
         </details>
-
-        <div class="mt-4 flex items-end gap-2">
-          <button class="btn btn-amber px-4 py-2 rounded-xl" type="button" id="btnAdd">Agregar</button>
-          <button class="btn btn-amber px-4 py-2 rounded-xl hidden" type="button" id="btnUpdate">Guardar cambios</button>
-          <button class="px-4 py-2 rounded-xl bg-slate-200 text-slate-800 hover:bg-slate-300 hidden" type="button" id="btnCancel">Cancelar</button>
-          <p class="text-sm text-slate-500 ml-auto">Saldo = Gastos totales − Anticipo.</p>
-        </div>
       </section>
 
-      <!-- 3. Lista -->
+      <!-- LISTA DE OPERACIONES (filtros) -->
       <section class="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
         <div class="flex items-center gap-2 bg-white rounded-2xl shadow px-3 py-2 w-full md:w-auto">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-slate-500"><path d="M10.5 3.75a6.75 6.75 0 1 1 0 13.5 6.75 6.75 0 0 1 0-13.5Zm11.22 16.28-3.9-3.9a9 9 0 1 0-1.06 1.06l3.9 3.9a.75.75 0 1 0 1.06-1.06Z"/></svg>
@@ -199,38 +239,45 @@
         <div class="flex gap-2 ml-auto">
           <select id="filterSemaforo" class="bg-white rounded-xl shadow px-3 py-2">
             <option value="">Semáforo: Todos</option>
-            <option>Verde</option><option>Amarillo</option><option>Rojo</option>
+            <option>Pendiente</option>
+            <option>Verde</option>
+            <option>Amarillo</option>
+            <option>Rojo</option>
           </select>
           <select id="filterEstado" class="bg-white rounded-xl shadow px-3 py-2">
             <option value="">Estado: Todos</option>
             <option value="saldo">Saldo a favor (≤ 0)</option>
             <option value="deuda">Deuda (&gt; 0)</option>
+            <option value="activa">Activas</option>
+            <option value="completa">Completadas</option>
           </select>
         </div>
       </section>
 
+      <!-- TABLA -->
       <section class="bg-white rounded-2xl shadow overflow-hidden">
         <div class="scroll-x">
           <table class="min-w-full text-sm" id="tablaOps">
             <thead class="bg-slate-100 text-slate-700">
               <tr>
-                <th class="px-3 py-2">✓</th>
+                <th class="px-3 py-2 text-left">#</th>
+                <th class="px-3 py-2 text-left">Acciones</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="ref">Referencia</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="importador">Importador</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="ejecutivo">Ejecutivo</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="contacto">Contacto</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="contenedor">Nº Contenedor/Guía</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="pedimento">Nº Pedimento</th>
-                <th class="px-3 py-2 text-left cursor-pointer sort" data-key="tipo_operacion">Tipo op.</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="f_llegada">F. llegada/ETA</th>
+                <th class="px-3 py-2 text-left cursor-pointer sort" data-key="f_revalidacion">F. revalidación</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="f_modulacion">F. modulación</th>
                 <th class="px-3 py-2 text-left">Semáforo</th>
                 <th class="px-3 py-2 text-right cursor-pointer sort" data-key="anticipo">Anticipo</th>
                 <th class="px-3 py-2 text-right cursor-pointer sort" data-key="gastos_total">Gastos</th>
                 <th class="px-3 py-2 text-right">Saldo</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="f_facturacion">F. facturación</th>
+                <th class="px-3 py-2 text-left cursor-pointer sort" data-key="tipo_operacion">Tipo op.</th>
                 <th class="px-3 py-2 text-left cursor-pointer sort" data-key="multas_tipo">Multas</th>
-                <th class="px-3 py-2 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody id="tbody" class="divide-y divide-slate-100"></tbody>
@@ -253,545 +300,682 @@
       </section>
     </section>
 
-    <!-- ===== PESTAÑA: DATOS ÚTILES ===== -->
-    <section id="panelDU" class="tabpanel space-y-6">
-
+    <!-- ========================= DATOS ÚTILES ========================= -->
+    <section id="panelDU" class="ce-panel space-y-4">
       <!-- KPIs -->
-      <section class="grid md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl shadow p-4">
-          <div class="text-sm text-slate-500 mb-1">Operaciones completadas</div>
-          <div id="kpiCompletadas" class="text-2xl font-extrabold">0</div>
-          <div id="kpiCompletadasSub" class="text-xs text-slate-500">de 0 totales</div>
+      <div class="grid md:grid-cols-3 gap-3">
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <div class="text-sm text-slate-500">Operaciones completadas</div>
+          <div id="kpiComp" class="text-2xl font-extrabold mt-1">0</div>
+          <div id="kpiCompSub" class="text-xs text-slate-400">de 0 totales</div>
         </div>
-        <div class="bg-white rounded-2xl shadow p-4">
-          <div class="text-sm text-slate-500 mb-1">Saldo pendiente total</div>
-          <div id="kpiSaldo" class="text-2xl font-extrabold text-rose-600">$0.00</div>
-          <div class="text-xs text-slate-500">Gastos − Anticipo</div>
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <div class="text-sm text-slate-500">Saldo pendiente total</div>
+          <div id="kpiSaldo" class="text-2xl font-extrabold mt-1 text-rose-600">$0.00</div>
+          <div class="text-xs text-slate-400">Gastos – Anticipo</div>
         </div>
-        <div class="bg-white rounded-2xl shadow p-4">
-          <div class="text-sm text-slate-500 mb-1">% enviadas a facturar</div>
-          <div id="kpiFactPct" class="text-2xl font-extrabold">0%</div>
-          <div id="kpiFactPctSub" class="text-xs text-slate-500">0 de 0</div>
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <div class="text-sm text-slate-500">Semáforo / Multas</div>
+          <div id="kpiSemMul" class="mt-2 flex items-center gap-3 text-sm"></div>
         </div>
-        <div class="bg-white rounded-2xl shadow p-4">
-          <div class="text-sm text-slate-500 mb-1">Semáforo / Multas</div>
-          <div id="kpiSemMult" class="text-sm">
-            <span class="badge b-green">V <span id="kv">0</span></span>
-            <span class="badge b-yellow">A <span id="ka">0</span></span>
-            <span class="badge b-red">R <span id="kr">0</span></span>
-            <span class="ml-3">Multas: <span id="km">0</span></span>
-          </div>
-        </div>
-      </section>
+      </div>
 
-      <!-- Agenda -->
-      <section class="grid lg:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl shadow p-4">
-          <h3 class="font-semibold mb-2">Próximas llegadas / ETA (solo hoy)</h3>
-          <div class="scroll-x rounded-xl border border-slate-200">
-            <table class="w-full min-w-[680px] text-sm">
-              <thead class="bg-slate-50 text-slate-600">
+      <!-- Apiladas a ancho completo -->
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <div class="flex items-center justify-between">
+          <h3 class="font-semibold">Próximas llegadas / ETA (hoy)</h3>
+          <span class="text-xs text-slate-400">Usa “Actualizar” para refrescar.</span>
+        </div>
+        <div class="scroll-x mt-3">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-100">
+              <tr>
+                <th class="px-2 py-2 text-left">Ref.</th>
+                <th class="px-2 py-2 text-left">Importador</th>
+                <th class="px-2 py-2 text-left">Ejecutivo</th>
+                <th class="px-2 py-2 text-left">ETA</th>
+                <th class="px-2 py-2 text-left">Semáforo</th>
+              </tr>
+            </thead>
+            <tbody id="duEtaBody"></tbody>
+          </table>
+          <div id="duEtaEmpty" class="text-xs text-slate-400 mt-2 hidden">Sin registros para hoy.</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h3 class="font-semibold">Próximas modulaciones (7 días)</h3>
+        <div class="scroll-x mt-3">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-100">
+              <tr>
+                <th class="px-2 py-2 text-left">Ref.</th>
+                <th class="px-2 py-2 text-left">Importador</th>
+                <th class="px-2 py-2 text-left">Ejecutivo</th>
+                <th class="px-2 py-2 text-left">F. modulación</th>
+              </tr>
+            </thead>
+            <tbody id="duModBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h3 class="font-semibold">Pendientes de enviar a facturar</h3>
+        <div class="scroll-x mt-3">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-100">
+              <tr>
+                <th class="px-2 py-2 text-left">Editar</th>
+                <th class="px-2 py-2 text-left">Ref.</th>
+                <th class="px-2 py-2 text-left">Importador</th>
+                <th class="px-2 py-2 text-left">Ejecutivo</th>
+                <th class="px-2 py-2 text-left">Saldo</th>
+              </tr>
+            </thead>
+            <tbody id="duFactBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Dos columnas simétricas -->
+      <div class="grid md:grid-cols-2 gap-3">
+        <div class="bg-white rounded-2xl p-4 shadow h-[420px] flex flex-col">
+          <h3 class="font-semibold">Saldo pendiente por cliente</h3>
+          <div class="scroll-x mt-3 flex-1 overflow-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-100">
                 <tr>
-                  <th class="px-3 py-2 text-left">Ref.</th>
-                  <th class="px-3 py-2 text-left">Importador</th>
-                  <th class="px-3 py-2 text-left">Ejecutivo</th>
-                  <th class="px-3 py-2 text-left">ETA</th>
-                  <th class="px-3 py-2 text-left">Semáforo</th>
+                  <th class="px-2 py-2 text-left">Cliente</th>
+                  <th class="px-2 py-2 text-right">Saldo (MXN)</th>
                 </tr>
               </thead>
-              <tbody id="duEta" class="divide-y divide-slate-100"></tbody>
+              <tbody id="duSaldoCliente"></tbody>
             </table>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow p-4">
-          <h3 class="font-semibold mb-2">Próximas modulaciones</h3>
-          <div class="scroll-x rounded-xl border border-slate-200">
-            <table class="w-full min-w-[600px] text-sm">
-              <thead class="bg-slate-50 text-slate-600">
-                <tr>
-                  <th class="px-3 py-2 text-left">Ref.</th>
-                  <th class="px-3 py-2 text-left">Importador</th>
-                  <th class="px-3 py-2 text-left">Ejecutivo</th>
-                  <th class="px-3 py-2 text-left">F. modulación</th>
-                </tr>
-              </thead>
-              <tbody id="duMod" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
+        <div class="bg-white rounded-2xl p-4 shadow h-[420px] flex flex-col">
+          <h3 class="font-semibold">Pendientes</h3>
+          <textarea id="duNotas" class="mt-2 w-full flex-1 rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Escribe pendientes o recordatorios…"></textarea>
+          <div class="text-xs text-slate-400 mt-1">Se guarda automáticamente.</div>
         </div>
-
-        <div class="bg-white rounded-2xl shadow p-4">
-          <h3 class="font-semibold mb-2">Pendientes de enviar a facturar</h3>
-          <div class="scroll-x rounded-xl border border-slate-200">
-            <table class="w-full min-w-[560px] text-sm">
-              <thead class="bg-slate-50 text-slate-600">
-                <tr>
-                  <th class="px-3 py-2 text-left">Ref.</th>
-                  <th class="px-3 py-2 text-left">Importador</th>
-                  <th class="px-3 py-2 text-left">Ejecutivo</th>
-                  <th class="px-3 py-2 text-left">Saldo</th>
-                </tr>
-              </thead>
-              <tbody id="duFact" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- Saldo por cliente + Notas -->
-      <section class="grid lg:grid-cols-2 gap-4">
-        <div class="bg-white rounded-2xl shadow p-4">
-          <h3 class="font-semibold mb-2">Saldo pendiente por cliente</h3>
-          <div class="scroll-x rounded-xl border border-slate-200">
-            <table class="w-full min-w-[480px] text-sm">
-              <thead class="bg-slate-50 text-slate-600">
-                <tr>
-                  <th class="px-3 py-2 text-left">Cliente</th>
-                  <th class="px-3 py-2 text-left">Saldo pendiente</th>
-                </tr>
-              </thead>
-              <tbody id="duSaldoClientes" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow p-4">
-          <h3 class="font-semibold mb-2">Notas (autoguardado)</h3>
-          <textarea id="notesArea" rows="10" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 p-3 text-sm" placeholder="Escribe recordatorios, pendientes, acuerdos…"></textarea>
-          <div id="notesSaved" class="text-xs text-slate-500 mt-1"></div>
-        </div>
-      </section>
+      </div>
     </section>
   </main>
 
-  <!-- ===== JS ===== -->
+  <!-- TEMPLATE FILA -->
+  <template id="rowTemplate">
+    <tr>
+      <td class="px-3 py-2 align-top text-slate-400">1</td>
+      <td class="px-3 py-2 align-top text-left actions-cell">
+        <button class="text-indigo-600 hover:underline mr-3 btn-edit">Editar</button>
+        <button class="text-amber-700 hover:underline mr-3 btn-nota">Notas</button>
+        <button class="text-rose-600 hover:underline btn-delete">Eliminar</button>
+      </td>
+      <td class="px-3 py-2 align-top font-medium"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top text-right"></td>
+      <td class="px-3 py-2 align-top text-right"></td>
+      <td class="px-3 py-2 align-top text-right"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+      <td class="px-3 py-2 align-top"></td>
+    </tr>
+  </template>
+
+  <!-- MODAL NOTAS -->
+  <div id="notaModal" class="modal">
+    <div class="bg-white rounded-2xl shadow w-[min(600px,92vw)] p-4">
+      <h3 class="font-semibold mb-2">Notas de la operación <span id="notaRef" class="text-slate-500"></span></h3>
+      <textarea id="notaTxt" class="w-full h-48 rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Escribe una nota…"></textarea>
+      <div class="mt-3 flex justify-between">
+        <button id="notaDelete" class="px-3 py-2 rounded-xl bg-rose-100 text-rose-700 hover:bg-rose-200">Eliminar nota</button>
+        <div class="flex gap-2">
+          <button id="notaCancel" class="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300">Cancelar</button>
+          <button id="notaSave" class="px-3 py-2 rounded-xl bg-yellow-500 text-white hover:bg-yellow-600">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const $  = (s) => document.querySelector(s);
-    const $$ = (s) => document.querySelectorAll(s);
+    const $  = (s)=>document.querySelector(s);
+    const $$ = (s)=>document.querySelectorAll(s);
 
-    const state = { ops: [], sortKey: 'created_at', sortDir: -1, editIndex: null };
+    const STORAGE_KEY     = 'ops_cex_v5_1';
+    const LEGACY_KEYS     = ['ops_cex_v5_0','ops_cex_v4_1','ops_cex_v3_1'];
+    const NOTAS_KEY       = 'ops_pendientes_v1';
+    const LAST_OPENED_KEY = 'ops_last_opened_v1';
+    const CLIENTES_KEY    = 'ops_clientes_v1';
 
-    const STORAGE_WRITE_KEY = 'ops_cex_v4_2';
-    const STORAGE_LEGACY_KEYS = ['ops_cex_v4_1','ops_cex_v4_0','ops_cex_v3_1'];
+    const state = { ops: [], sortKey:'createdAt', sortDir:-1, editIndex:null, clientes:[], notaIdx:null };
 
-    const fmt = (n) => Number(n || 0).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
-    const unformat = (s) => { const x = (s??'').toString().replace(/[^\d.-]/g,''); const n = parseFloat(x); return isFinite(n)?n:0; };
+    const fmt=(n)=>Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
+    const parseNum=(v)=>isFinite(parseFloat(v))?parseFloat(v):0;
 
-    const G_KEYS = [
-      'g_impuestos','g_agencia','g_maniobras','g_fletes','g_burreo','g_tarifas_extra',
-      'g_grua','g_almacenaje','g_maniobra_carga','g_maniobra_descarga','g_desconsolidacion','g_consolidacion',
-      'g_previo','g_inspeccion'
-    ];
-    function sumGastos(op){ return +(G_KEYS.reduce((a,k)=> a + (op[k]||0), 0)).toFixed(2); }
-    function saldo(op){ return +(sumGastos(op) - (op.anticipo||0)).toFixed(2); }
+    const G_KEYS=['g_impuestos','g_agencia','g_maniobras','g_fletes','g_burreo','g_tarifas_extra','g_grua','g_almacenaje','g_maniobra_carga','g_maniobra_descarga','g_desconsolidacion','g_consolidacion','g_previo','g_inspeccion','g_custodia'];
 
-    function save(){
-      try{ localStorage.setItem(STORAGE_WRITE_KEY, JSON.stringify(state.ops)); }
-      catch(e){ console.error('No se pudo guardar', e); }
-    }
+    function sumG(op){return +(G_KEYS.reduce((a,k)=>a+parseNum(op[k]),0)).toFixed(2)}
+    function pend(op){return +(sumG(op)-parseNum(op.anticipo)).toFixed(2)}
+
+    function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state.ops))}
     function load(){
-      let raw = localStorage.getItem(STORAGE_WRITE_KEY);
-      if(!raw){
-        for(const k of STORAGE_LEGACY_KEYS){ raw = localStorage.getItem(k); if(raw){ localStorage.setItem(STORAGE_WRITE_KEY, raw); break; } }
+      let data=localStorage.getItem(STORAGE_KEY);
+      if(!data){
+        for(const k of LEGACY_KEYS){ if(localStorage.getItem(k)){ data=localStorage.getItem(k); break; } }
       }
-      try{ state.ops = raw? JSON.parse(raw):[]; if(!Array.isArray(state.ops)) state.ops=[]; }
-      catch(e){ state.ops = []; }
-
-      // agrega created_at si falta
-      const now = Date.now();
-      state.ops.forEach((o,i)=>{
-        if(!o.created_at){
-          const base = o.f_llegada || o.f_modulacion || o.f_facturacion;
-          const t = base ? new Date(base).getTime() : now - (state.ops.length-i)*1000;
-          o.created_at = isFinite(t)? t : now - (state.ops.length-i)*1000;
-        }
-        // asegura numéricos (por si vienen formateados en CSV antiguo)
-        o.anticipo = +o.anticipo||0;
-        G_KEYS.forEach(k=> o[k] = +o[k]||0);
+      state.ops=JSON.parse(data||'[]');
+      state.ops.forEach(op=>{
+        if(!op.createdAt) op.createdAt=Date.now();
+        if(typeof op.completa==='undefined') op.completa=false;
+        if(typeof op.f_revalidacion==='undefined') op.f_revalidacion='';
+        if(typeof op.nota==='undefined') op.nota='';
       });
+    }
+
+    function saveClientes(){localStorage.setItem(CLIENTES_KEY,JSON.stringify(state.clientes))}
+    function loadClientes(){state.clientes=JSON.parse(localStorage.getItem(CLIENTES_KEY)||'[]')}
+
+    function isCSFvigente(c){
+      if(!c?.csfUpdated) return false;
+      const d=new Date(c.csfUpdated);
+      const now=new Date();
+      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+    }
+
+    function buildClientesSelect(){
+      const sel=$('#contactoSel'); const val=sel.value;
+      sel.innerHTML='<option value="">Selecciona cliente…</option>';
+      state.clientes.forEach(c=>{
+        const opt=document.createElement('option');
+        opt.value=c.nombre;
+        opt.textContent=c.nombre + (isCSFvigente(c)?'':' (CSF no actualizada)');
+        sel.appendChild(opt);
+      });
+      if(val) sel.value=val;
+      validateClienteSeleccionado();
+    }
+
+    function renderClientesTabla(){
+      const tb=$('#cliTabla'); tb.innerHTML='';
+      state.clientes.forEach((c,i)=>{
+        const ok=isCSFvigente(c);
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td class="px-2 py-1">${c.nombre}</td>
+          <td class="px-2 py-1">${c.csfFileName||'-'}</td>
+          <td class="px-2 py-1">${c.csfUpdated?c.csfUpdated.slice(0,10):'-'}</td>
+          <td class="px-2 py-1">${ok?'<span class="text-emerald-600 font-medium">Vigente</span>':'<span class="text-rose-600 font-medium">No actualizada</span>'}</td>
+          <td class="px-2 py-1">
+            <button class="text-indigo-600 hover:underline mr-2 btn-cli-edit" data-i="${i}">Editar</button>
+            <button class="text-rose-600 hover:underline btn-cli-del" data-i="${i}">Eliminar</button>
+          </td>`;
+        tb.appendChild(tr);
+      });
+
+      $$('.btn-cli-edit').forEach(b=>b.addEventListener('click',()=>{
+        const i=+b.dataset.i;
+        $('#cli_edit_i').value=i;
+        $('#cli_nombre').value=state.clientes[i].nombre;
+        $('#cli_csf').value='';
+      }));
+      $$('.btn-cli-del').forEach(b=>b.addEventListener('click',()=>{ const i=+b.dataset.i; if(!confirm('¿Eliminar cliente?'))return; state.clientes.splice(i,1); saveClientes(); buildClientesSelect(); renderClientesTabla(); }));
+    }
+
+    function todayLocal(){ const t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()); }
+    function toLocalISO(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` }
+    function daysTo(dateStr){
+      if(!dateStr) return null;
+      const d=new Date(dateStr), today=todayLocal(), dd=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+      return Math.round((dd - today)/(1000*60*60*24));
     }
 
     function paintSemaforo(val){
-      const cls = val==='Verde' ? 'b-green' : val==='Amarillo' ? 'b-yellow' : 'b-red';
-      return `<span class="badge ${cls}">${val||'-'}</span>`;
-    }
-    function isTodayStr(s){
-      if(!s) return false;
-      const d = new Date(s);
-      if(!isFinite(d)) return false;
-      const t = new Date(); return d.getFullYear()===t.getFullYear() && d.getMonth()===t.getMonth() && d.getDate()===t.getDate();
+      const map={'Pendiente':'bg-slate-100 text-slate-700','Verde':'bg-emerald-100 text-emerald-700','Amarillo':'bg-amber-100 text-amber-700','Rojo':'bg-rose-100 text-rose-700'};
+      const dot={'Pendiente':'bg-slate-400','Verde':'bg-emerald-500','Amarillo':'bg-amber-500','Rojo':'bg-rose-500'};
+      return `<span class="inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs ${map[val]||'bg-slate-100 text-slate-600'}"><span class="w-2 h-2 rounded-full ${dot[val]||'bg-slate-400'}"></span>${val||'-'}</span>`;
     }
 
-    /* ===== RENDER TABLA ===== */
+    function isComplete(op){
+      const keysReq=['ref','ejecutivo','f_llegada','f_modulacion','f_facturacion','f_revalidacion','tipo_operacion','semaforo'];
+      const filled=keysReq.every(k=>!!op[k]);
+      return filled && pend(op)<=0;
+    }
+
     function render(){
-      updateGastosPreview();
+      const tbody=$('#tbody'); tbody.innerHTML='';
 
-      const tbody = $('#tbody'); tbody.innerHTML = '';
-      const q = $('#search').value.trim().toLowerCase();
-      const fSem = $('#filterSemaforo').value;
-      const fEst = $('#filterEstado').value;
+      // Estado/completadas
+      state.ops.forEach(o=>{
+        const nowComplete=isComplete(o);
+        if(nowComplete!==o.completa) o.completa=nowComplete;
+      });
+      save();
 
-      let rows = state.ops.map((op, idx)=> ({...op, idx, gastos_total: sumGastos(op), saldo: saldo(op)}));
+      const q=$('#search').value.trim().toLowerCase();
+      const fSem=$('#filterSemaforo').value;
+      const fEst=$('#filterEstado').value;
 
-      if (q) rows = rows.filter(r =>
-        (r.ref||'').toLowerCase().includes(q) ||
-        (r.ejecutivo||'').toLowerCase().includes(q) ||
-        (r.importador||'').toLowerCase().includes(q)
-      );
-      if (fSem) rows = rows.filter(r => (r.semaforo||'') === fSem);
-      if (fEst) rows = rows.filter(r => fEst==='saldo' ? r.saldo <= 0 : r.saldo > 0);
+      let rows=state.ops.map((op,idx)=>({...op,idx,gastos_total:sumG(op),pendiente:pend(op)}));
 
-      if (state.sortKey){
+      if(q) rows=rows.filter(r=>(r.ref||'').toLowerCase().includes(q)||(r.ejecutivo||'').toLowerCase().includes(q)||(r.importador||'').toLowerCase().includes(q));
+      if(fSem) rows=rows.filter(r=>(r.semaforo||'')===fSem);
+      if(fEst){
+        if(fEst==='saldo') rows=rows.filter(r=>r.pendiente<=0);
+        else if(fEst==='deuda') rows=rows.filter(r=>r.pendiente>0);
+        else if(fEst==='activa') rows=rows.filter(r=>!r.completa);
+        else if(fEst==='completa') rows=rows.filter(r=>r.completa);
+      }
+
+      if(state.sortKey){
         rows.sort((a,b)=>{
-          const k = state.sortKey, dir = state.sortDir;
-          const numKeys = ['anticipo','gastos_total','saldo','created_at'];
-          const A = numKeys.includes(k) ? (+a[k]||0) : (a[k]||'');
-          const B = numKeys.includes(k) ? (+b[k]||0) : (b[k]||'');
-          if (A<B) return -1*dir; if (A>B) return 1*dir; return 0;
+          const k=state.sortKey, dir=state.sortDir;
+          const numeric=['anticipo','gastos_total','pendiente','createdAt'];
+          const na=numeric.includes(k)?parseNum(a[k]):(a[k]||'');
+          const nb=numeric.includes(k)?parseNum(b[k]):(b[k]||'');
+          if(na<nb) return -1*dir; if(na>nb) return 1*dir; return 0;
         });
       }
 
-      rows.forEach((r)=>{
-        const tr = document.createElement('tr');
-        const multa = r.multas_tipo && r.multas_tipo !== 'ninguna';
-        if (multa) tr.classList.add('has-multa');
-        if (isTodayStr(r.f_llegada)) tr.classList.add('today-eta');
+      const lastOpenedRef=localStorage.getItem(LAST_OPENED_KEY);
+      const tpl=$('#rowTemplate');
 
-        tr.innerHTML = `
-          <td class="px-3 py-2 align-top"><input type="checkbox" ${r.completada?'checked':''} class="chk-done"></td>
-          <td class="px-3 py-2 align-top font-medium">${r.ref||''}</td>
-          <td class="px-3 py-2 align-top">${r.importador||''}</td>
-          <td class="px-3 py-2 align-top">${r.ejecutivo||''}</td>
-          <td class="px-3 py-2 align-top">${r.contacto||''}</td>
-          <td class="px-3 py-2 align-top">${r.contenedor||''}</td>
-          <td class="px-3 py-2 align-top">${r.pedimento||''}</td>
-          <td class="px-3 py-2 align-top">${r.tipo_operacion_otro? 'Otro: '+r.tipo_operacion_otro : (r.tipo_operacion||'')}</td>
-          <td class="px-3 py-2 align-top">${r.f_llegada||''}</td>
-          <td class="px-3 py-2 align-top">${r.f_modulacion||''}</td>
-          <td class="px-3 py-2 align-top">${paintSemaforo(r.semaforo)}</td>
-          <td class="px-3 py-2 align-top text-right">${fmt(r.anticipo)}</td>
-          <td class="px-3 py-2 align-top text-right">${fmt(r.gastos_total)}</td>
-          <td class="px-3 py-2 align-top text-right"><span class="font-medium ${multa ? 'text-rose-600' : (r.saldo<=0?'text-emerald-600':'text-rose-600')}">${fmt(r.saldo)}</span></td>
-          <td class="px-3 py-2 align-top">${r.f_facturacion||''}</td>
-          <td class="px-3 py-2 align-top">${r.multas_tipo==='otro' ? ('Otro: '+(r.multas_detalle||'')) : (r.multas_tipo||'ninguna')}</td>
-          <td class="px-3 py-2 align-top text-right">
-            <button class="text-indigo-200 md:text-indigo-600 hover:underline mr-2 btn-edit">Editar</button>
-            <button class="text-rose-300 md:text-rose-600 hover:underline btn-delete">Eliminar</button>
-          </td>
-        `;
-        tr.querySelector('.btn-edit').addEventListener('click', ()=> startEdit(r.idx));
-        tr.querySelector('.btn-delete').addEventListener('click', ()=> delRow(r.idx));
-        tr.querySelector('.chk-done').addEventListener('change', (ev)=>{
-          state.ops[r.idx].completada = ev.target.checked; save(); renderDU();
-        });
+      rows.forEach((r,i)=>{
+        const tr=tpl.content.firstElementChild.cloneNode(true);
+        const multa=r.multas_tipo && r.multas_tipo!=='ninguna';
+
+        tr.children[0].textContent=i+1;
+
+        tr.querySelector('.btn-edit').addEventListener('click',()=>{ startEdit(r.idx); localStorage.setItem(LAST_OPENED_KEY,r.ref||('idx_'+r.idx)); render(); });
+        tr.querySelector('.btn-delete').addEventListener('click',()=>delRow(r.idx));
+        tr.querySelector('.btn-nota').addEventListener('click',()=>openNota(r.idx));
+        if(r.nota && r.nota.trim()) tr.querySelector('.actions-cell').classList.add('badge-yellow');
+
+        const c=tr.children;
+        c[2].textContent=r.ref||'';
+        c[3].textContent=r.importador||'';
+        c[4].textContent=r.ejecutivo||'';
+        c[5].textContent=r.contacto||'';
+        c[6].textContent=r.contenedor||'';
+        c[7].textContent=r.pedimento||'';
+        c[8].textContent=r.f_llegada||'';
+        c[9].textContent=r.f_revalidacion||'';
+        c[10].textContent=r.f_modulacion||'';
+        c[11].innerHTML=paintSemaforo(r.semaforo);
+        c[12].textContent=fmt(r.anticipo);
+        c[13].textContent=fmt(r.gastos_total);
+        c[14].innerHTML=`<span class="font-medium ${(r.pendiente<=0?'text-emerald-600':'text-rose-600')}">${fmt(r.pendiente)}</span>`;
+        c[15].textContent=r.f_facturacion||'';
+        c[16].textContent=(r.tipo_operacion==='Otros'&&r.tipo_operacion_otro)?r.tipo_operacion_otro:(r.tipo_operacion||'');
+        c[17].textContent=r.multas_tipo==='otro'?`Otro: ${r.multas_detalle||''}`:(r.multas_tipo||'ninguna');
+
+        if(multa) tr.classList.add('has-multa');
+        if((r.ref||('idx_'+r.idx))===lastOpenedRef) tr.classList.add('last-opened');
+        if(r.completa) tr.classList.add('row-completed');
+
+        // Verde por ETA: 2 días antes y día; después solo si no hay revalidación
+        const dTo=daysTo(r.f_llegada);
+        const etaSoon = (dTo!==null && dTo>=0 && dTo<=2) || (dTo!==null && dTo<0 && !r.f_revalidacion);
+        tr.classList.toggle('row-eta-green', !!etaSoon && !r.completa);
+
         tbody.appendChild(tr);
       });
 
-      // totales
-      const sum = (k) => rows.reduce((a,r)=> a + (+r[k]||0), 0);
-      $('#tAnticipo').textContent  = fmt(sum('anticipo'));
-      $('#tGastos').textContent    = fmt(sum('gastos_total'));
-      $('#tPendiente').textContent = fmt(rows.reduce((a,r)=> a + r.saldo, 0));
+      const sum=(k)=>rows.reduce((a,r)=>a+parseNum(r[k]),0);
+      $('#tAnticipo').textContent=fmt(sum('anticipo'));
+      $('#tGastos').textContent=fmt(sum('gastos_total'));
+      $('#tPendiente').textContent=fmt(rows.reduce((a,r)=>a+r.pendiente,0));
 
-      // indicadores de orden
-      $$('.sort').forEach(th => th.innerHTML = th.textContent.replace(/[↓↑]\s*$/,'') + (state.sortKey===th.dataset.key ? (state.sortDir>0?' ↑':' ↓') : ''));
-
-      renderDU();
+      $$('.sort').forEach(th=>th.innerHTML=th.textContent.replace(/[↓↑]\s*$/,'')+(state.sortKey===th.dataset.key?(state.sortDir>0?' ↑':' ↓'):''));
     }
 
-    /* ===== FORM ===== */
     function clearForm(){
       $('#opForm').reset();
-      $('#anticipo').value = '0';
-      ['#tipo_operacion_otro','#multas_detalle'].forEach(sel=> { $(sel).classList.add('hidden'); $(sel).value=''; });
-      G_KEYS.forEach(k => $('#'+k).value = '0');
+      ['#tipo_operacion_otro','#multas_detalle'].forEach(s=>{$(s).classList.add('hidden'); $(s).value='';});
+      G_KEYS.forEach(k=>$('#'+k).value='');
+      $('#anticipo').value='';
       updateGastosPreview();
+      validateClienteSeleccionado();
     }
+
     function collectOp(){
-      const op = {
-        ref: $('#ref').value.trim(),
-        ejecutivo: $('#ejecutivo').value.trim(),
-        importador: $('#importador').value.trim(),
-        contacto: $('#contacto').value.trim(),
-        contenedor: $('#contenedor').value.trim(),
-        pedimento: $('#pedimento').value.trim(),
-        f_llegada: $('#f_llegada').value,
-        f_modulacion: $('#f_modulacion').value,
-        f_facturacion: $('#f_facturacion').value,
-        semaforo: $('#semaforo').value,
-        anticipo: unformat($('#anticipo').value),
-        tipo_operacion: $('#tipo_operacion').value,
-        tipo_operacion_otro: $('#tipo_operacion_otro').value.trim(),
-        multas_tipo: $('#multas_tipo').value,
-        multas_detalle: $('#multas_detalle').value.trim(),
-        completada: false,
-        created_at: Date.now()
+      const op={
+        ref:$('#ref').value.trim(),
+        ejecutivo:$('#ejecutivo').value.trim(),
+        importador:$('#importador').value.trim(),
+        contacto:$('#contactoSel').value.trim(),
+        contenedor:$('#contenedor').value.trim(),
+        pedimento:$('#pedimento').value.trim(),
+        f_llegada:$('#f_llegada').value,
+        f_revalidacion:$('#f_revalidacion').value,
+        f_modulacion:$('#f_modulacion').value,
+        f_facturacion:$('#f_facturacion').value,
+        semaforo:$('#semaforo').value,
+        anticipo:parseNum($('#anticipo').value),
+        tipo_operacion:$('#tipo_operacion').value,
+        tipo_operacion_otro:$('#tipo_operacion_otro').value.trim(),
+        multas_tipo:$('#multas_tipo').value,
+        multas_detalle:$('#multas_detalle').value.trim(),
+        createdAt:(state.editIndex!=null?state.ops[state.editIndex].createdAt:Date.now())
       };
-      G_KEYS.forEach(k => op[k] = unformat($('#'+k).value));
+      G_KEYS.forEach(k=>op[k]=parseNum($('#'+k).value));
+      op.completa=isComplete(op);
+      if(state.editIndex!=null && typeof state.ops[state.editIndex].nota!=='undefined') op.nota=state.ops[state.editIndex].nota;
       return op;
     }
+
     function populateForm(op){
-      $('#ref').value = op.ref||'';
-      $('#ejecutivo').value = op.ejecutivo||'';
-      $('#importador').value = op.importador||'';
-      $('#contacto').value = op.contacto||'';
-      $('#contenedor').value = op.contenedor||'';
-      $('#pedimento').value = op.pedimento||'';
-      $('#f_llegada').value = op.f_llegada||'';
-      $('#f_modulacion').value = op.f_modulacion||'';
-      $('#f_facturacion').value = op.f_facturacion||'';
-      $('#semaforo').value = op.semaforo||'Verde';
-      $('#anticipo').value = (op.anticipo!=null)? (op.anticipo.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})) : '0';
-      $('#tipo_operacion').value = op.tipo_operacion||'A1';
-      $('#tipo_operacion_otro').value = op.tipo_operacion_otro||'';
-      $('#tipo_operacion_otro').classList.toggle('hidden', $('#tipo_operacion').value !== 'Otros');
-      $('#multas_tipo').value = op.multas_tipo||'ninguna';
-      $('#multas_detalle').value = op.multas_detalle||'';
-      $('#multas_detalle').classList.toggle('hidden', $('#multas_tipo').value !== 'otro');
-      G_KEYS.forEach(k => $('#'+k).value = (op[k]||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}));
+      $('#ref').value=op.ref||'';
+      $('#ejecutivo').value=op.ejecutivo||'';
+      $('#importador').value=op.importador||'';
+      buildClientesSelect();
+      if(op.contacto && !state.clientes.find(c=>c.nombre===op.contacto)){
+        const sel=$('#contactoSel'); const tmp=document.createElement('option'); tmp.value=op.contacto; tmp.textContent=op.contacto+' (no registrado)'; sel.appendChild(tmp);
+      }
+      $('#contactoSel').value=op.contacto||'';
+      $('#contenedor').value=op.contenedor||'';
+      $('#pedimento').value=op.pedimento||'';
+      $('#f_llegada').value=op.f_llegada||'';
+      $('#f_revalidacion').value=op.f_revalidacion||'';
+      $('#f_modulacion').value=op.f_modulacion||'';
+      $('#f_facturacion').value=op.f_facturacion||'';
+      $('#semaforo').value=op.semaforo||'Pendiente';
+      $('#anticipo').value=(op.anticipo>0?op.anticipo:'');
+      $('#tipo_operacion').value=op.tipo_operacion||'A1';
+      $('#tipo_operacion_otro').value=op.tipo_operacion_otro||'';
+      $('#tipo_operacion_otro').classList.toggle('hidden',$('#tipo_operacion').value!=='Otros');
+      $('#multas_tipo').value=op.multas_tipo||'ninguna';
+      $('#multas_detalle').value=op.multas_detalle||'';
+      $('#multas_detalle').classList.toggle('hidden',$('#multas_tipo').value!=='otro');
+      G_KEYS.forEach(k=>$('#'+k).value=(op[k]>0?op[k]:''));
       updateGastosPreview();
+      validateClienteSeleccionado();
     }
+
     function addOrUpdate(){
-      const op = collectOp();
-      if (!op.ref){ alert('La referencia es obligatoria.'); return; }
-      if (state.editIndex!=null){ op.created_at = state.ops[state.editIndex].created_at; op.completada = !!state.ops[state.editIndex].completada; state.ops[state.editIndex] = op; }
-      else { state.ops.push(op); }
+      const cliente=$('#contactoSel').value.trim();
+      if(cliente){
+        const c=state.clientes.find(x=>x.nombre===cliente);
+        if(!c || !isCSFvigente(c)){
+          alert('CSF no actualizada: actualiza la CSF del cliente en “Registrar/administrar clientes”.');
+          return;
+        }
+      }
+
+      const op=collectOp();
+      if(!op.ref){alert('La referencia es obligatoria.');return}
+      if(state.editIndex!=null){
+        op.createdAt=state.ops[state.editIndex].createdAt||Date.now();
+        if(typeof op.nota==='undefined') op.nota=state.ops[state.editIndex].nota||'';
+        state.ops[state.editIndex]=op;
+      }else{
+        state.ops.push(op);
+      }
       save();
       endEdit();
-      // Ordenar por más reciente automáticamente
-      state.sortKey = 'created_at'; state.sortDir = -1;
-      render();
+      state.sortKey='createdAt'; state.sortDir=-1;
+      render(); renderUseful();
     }
+
     function startEdit(idx){
-      state.editIndex = idx;
+      state.editIndex=idx;
       populateForm(state.ops[idx]);
       $('#btnAdd').classList.add('hidden');
       $('#btnUpdate').classList.remove('hidden');
       $('#btnCancel').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      $('#tabOps').click();
+      window.scrollTo({top:0,behavior:'smooth'});
     }
+
     function endEdit(){
-      state.editIndex = null;
-      clearForm();
+      state.editIndex=null; clearForm();
       $('#btnAdd').classList.remove('hidden');
       $('#btnUpdate').classList.add('hidden');
       $('#btnCancel').classList.add('hidden');
     }
-    function delRow(idx){ if (!confirm('¿Eliminar esta operación?')) return; state.ops.splice(idx,1); save(); render(); }
 
-    // orden/búsqueda/filtros
-    $$('.sort').forEach(th => th.addEventListener('click', ()=>{
-      const key = th.dataset.key;
-      if (state.sortKey === key) state.sortDir *= -1; else { state.sortKey = key; state.sortDir = 1; }
+    function delRow(idx){ if(!confirm('¿Eliminar esta operación?'))return; state.ops.splice(idx,1); save(); render(); renderUseful(); }
+
+    // Orden y filtros
+    $$('.sort').forEach(th=>th.addEventListener('click',()=>{
+      const key=th.dataset.key;
+      if(state.sortKey===key) state.sortDir*=-1; else {state.sortKey=key; state.sortDir=1;}
       render();
     }));
-    $('#search').addEventListener('input', render);
-    $('#filterSemaforo').addEventListener('change', render);
-    $('#filterEstado').addEventListener('change', render);
+    $('#search').addEventListener('input',render);
+    $('#filterSemaforo').addEventListener('change',render);
+    $('#filterEstado').addEventListener('change',render);
 
-    // botones
-    $('#btnAdd').addEventListener('click', addOrUpdate);
-    $('#btnUpdate').addEventListener('click', addOrUpdate);
-    $('#btnCancel').addEventListener('click', endEdit);
+    $('#btnAdd').addEventListener('click',addOrUpdate);
+    $('#btnUpdate').addEventListener('click',addOrUpdate);
+    $('#btnCancel').addEventListener('click',endEdit);
 
-    // condicionales
-    $('#tipo_operacion').addEventListener('change', ()=>{
-      const show = $('#tipo_operacion').value === 'Otros';
-      $('#tipo_operacion_otro').classList.toggle('hidden', !show);
-      if (!show) $('#tipo_operacion_otro').value = '';
+    $('#tipo_operacion').addEventListener('change',()=>{
+      const show=$('#tipo_operacion').value==='Otros';
+      $('#tipo_operacion_otro').classList.toggle('hidden',!show);
+      if(!show) $('#tipo_operacion_otro').value='';
     });
-    $('#multas_tipo').addEventListener('change', ()=>{
-      const show = $('#multas_tipo').value === 'otro';
-      $('#multas_detalle').classList.toggle('hidden', !show);
-      if (!show) $('#multas_detalle').value = '';
+    $('#multas_tipo').addEventListener('change',()=>{
+      const show=$('#multas_tipo').value==='otro';
+      $('#multas_detalle').classList.toggle('hidden',!show);
+      if(!show) $('#multas_detalle').value='';
     });
 
-    // Formateo de dinero en inputs (focus = número crudo, blur = moneda)
-    function moneyAttach(id){
-      const el = $(id);
-      el.addEventListener('focus', ()=>{ el.value = (unformat(el.value) || 0).toString(); el.select(); });
-      el.addEventListener('blur', ()=>{ el.value = unformat(el.value).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); });
-      el.addEventListener('input', updateGastosPreview);
-      // formatea al inicio
-      el.value = unformat(el.value).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    function validateClienteSeleccionado(){
+      const v=$('#contactoSel').value;
+      const warn=$('#contactoWarn');
+      const c=state.clientes.find(x=>x.nombre===v);
+      const ok = !v || (c && isCSFvigente(c));
+      warn.classList.toggle('hidden', ok);
+      return ok;
     }
-    moneyAttach('#anticipo'); G_KEYS.forEach(k=> moneyAttach('#'+k));
+    $('#contactoSel').addEventListener('change',validateClienteSeleccionado);
 
-    // gastos preview
+    // Gastos preview
     function updateGastosPreview(){
-      const temp = collectOp();
-      $('#gastos_total_preview').textContent = fmt(sumGastos(temp));
+      const temp=collectOp();
+      $('#gastos_total_preview').textContent=fmt(sumG(temp));
     }
+    ['#anticipo'].concat(G_KEYS.map(k=>'#'+k)).forEach(sel=>$(sel).addEventListener('input',updateGastosPreview));
 
-    // CSV
-    $('#btnExport').addEventListener('click', ()=>{
-      const headers = [
-        'ref','ejecutivo','importador','contacto','contenedor','pedimento',
-        'f_llegada','f_modulacion','f_facturacion','semaforo','anticipo',
-        'tipo_operacion','tipo_operacion_otro','multas_tipo','multas_detalle',
-        'completada','created_at', ...G_KEYS, 'gastos_total','saldo'
-      ];
-      const lines = [headers.join(',')];
+    // Export/Import/Clear
+    $('#btnExport').addEventListener('click',()=>{
+      const headers=['ref','ejecutivo','importador','contacto','contenedor','pedimento','f_llegada','f_revalidacion','f_modulacion','f_facturacion','semaforo','anticipo','tipo_operacion','tipo_operacion_otro','multas_tipo','multas_detalle',...G_KEYS,'createdAt','completa','nota','gastos_total','pendiente'];
+      const lines=[headers.join(',')];
       state.ops.forEach(op=>{
-        const gtotal = sumGastos(op); const sld = saldo(op);
-        const row = headers.map(h=>{
-          const v = (h==='gastos_total')? gtotal :
-                    (h==='saldo')? sld :
-                    (h==='completada')? (op.completada?1:0) :
-                    (op[h] ?? '');
-          const s = v.toString();
-          return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+        const g=sumG(op), p=pend(op);
+        const row=headers.map(h=>{
+          const v=(h==='gastos_total')?g:(h==='pendiente')?p:(op[h]??'');
+          const s=(v===true?'1':v===false?'0':v).toString();
+          return /[",\n]/.test(s)?('"'+s.replace(/"/g,'""')+'"'):s;
         }).join(',');
         lines.push(row);
       });
-      const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'operaciones_ce.csv'; a.click(); URL.revokeObjectURL(url);
+      const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='operaciones_cex.csv'; a.click(); URL.revokeObjectURL(url);
     });
-    $('#fileImport').addEventListener('change', (e)=>{
-      const f = e.target.files[0]; if(!f) return;
-      const r = new FileReader();
-      r.onload = () => {
-        const lines = r.result.split(/\r?\n/).filter(Boolean);
-        const headers = lines.shift().split(',').map(h=>h.trim());
-        const idx = (k)=> headers.indexOf(k);
-        const ops = lines.map(line=>{
-          const cells = []; let cur = '', inside = false;
-          for (let i=0;i<line.length;i++){
+
+    $('#fileImport').addEventListener('change',e=>{
+      const f=e.target.files[0]; if(!f) return;
+      const rd=new FileReader();
+      rd.onload=()=>{
+        const t=rd.result, lines=t.split(/\r?\n/).filter(Boolean), headers=lines.shift().split(',').map(h=>h.trim()), idx=k=>headers.indexOf(k);
+        const ops=lines.map(line=>{
+          const cells=[]; let cur='',inQ=false;
+          for(let i=0;i<line.length;i++){
             const ch=line[i];
-            if (ch=='"'){ if (inside && line[i+1]=='"'){cur+='"'; i++;} else inside=!inside; }
-            else if (ch===',' && !inside){ cells.push(cur); cur=''; }
-            else cur += ch;
+            if(ch=='"'){ if(inQ && line[i+1]=='"'){cur+='"';i++;} else inQ=!inQ;}
+            else if(ch===',' && !inQ){cells.push(cur);cur='';}
+            else cur+=ch;
           } cells.push(cur);
-          const get = (k, money=false) => {
-            const p = idx(k); if(p<0) return money?0:'';
-            const v = cells[p] ?? '';
-            return money ? unformat(v) : v;
+          const get=(k,num=false)=>{const v=cells[idx(k)]??''; return num?parseNum(v):v;}
+          const op={
+            ref:get('ref'),
+            ejecutivo:get('ejecutivo'),
+            importador:get('importador'),
+            contacto:get('contacto'),
+            contenedor:get('contenedor'),
+            pedimento:get('pedimento'),
+            f_llegada:get('f_llegada'),
+            f_revalidacion:get('f_revalidacion'),
+            f_modulacion:get('f_modulacion'),
+            f_facturacion:get('f_facturacion'),
+            semaforo:get('semaforo'),
+            anticipo:get('anticipo',true),
+            tipo_operacion:get('tipo_operacion'),
+            tipo_operacion_otro:get('tipo_operacion_otro'),
+            multas_tipo:get('multas_tipo'),
+            multas_detalle:get('multas_detalle'),
+            createdAt:get('createdAt',true),
+            completa:get('completa')==='1',
+            nota:get('nota')
           };
-          const op = {
-            ref: get('ref'),
-            ejecutivo: get('ejecutivo'),
-            importador: get('importador'),
-            contacto: get('contacto'),
-            contenedor: get('contenedor'),
-            pedimento: get('pedimento'),
-            f_llegada: get('f_llegada'),
-            f_modulacion: get('f_modulacion'),
-            f_facturacion: get('f_facturacion'),
-            semaforo: get('semaforo'),
-            anticipo: get('anticipo', true),
-            tipo_operacion: get('tipo_operacion'),
-            tipo_operacion_otro: get('tipo_operacion_otro'),
-            multas_tipo: get('multas_tipo'),
-            multas_detalle: get('multas_detalle'),
-            completada: get('completada')==='1' || get('completada')===true,
-            created_at: +(get('created_at')||Date.now())
-          };
-          G_KEYS.forEach(k => op[k] = get(k, true));
+          G_KEYS.forEach(k=>op[k]=get(k,true));
           return op;
         });
-        state.ops = ops; save(); render();
+        state.ops=ops; save(); render(); renderUseful();
       };
-      r.readAsText(f); e.target.value='';
-    });
-    $('#btnClear').addEventListener('click', ()=>{
-      if (!confirm('Esto borrará todas las operaciones locales.')) return;
-      localStorage.removeItem(STORAGE_WRITE_KEY); state.ops = []; render();
+      rd.readAsText(f); e.target.value='';
     });
 
-    /* ===== DATOS ÚTILES ===== */
-    function renderDU(){
-      // KPIs
-      const tot = state.ops.length;
-      const comp = state.ops.filter(o=>o.completada).length;
-      $('#kpiCompletadas').textContent = comp;
-      $('#kpiCompletadasSub').textContent = `de ${tot} totales`;
-      const saldoTotal = state.ops.reduce((a,o)=> a + saldo(o), 0);
-      $('#kpiSaldo').textContent = fmt(saldoTotal);
-      const fact = state.ops.filter(o=> (o.f_facturacion||'').trim()).length;
-      $('#kpiFactPct').textContent = (tot? Math.round(fact*100/tot):0) + '%';
-      $('#kpiFactPctSub').textContent = `${fact} de ${tot}`;
-      const v = state.ops.filter(o=>o.semaforo==='Verde').length;
-      const a = state.ops.filter(o=>o.semaforo==='Amarillo').length;
-      const r = state.ops.filter(o=>o.semaforo==='Rojo').length;
-      const m = state.ops.filter(o=>o.multas_tipo && o.multas_tipo!=='ninguna').length;
-      $('#kv').textContent=v; $('#ka').textContent=a; $('#kr').textContent=r; $('#km').textContent=m;
+    $('#btnClear').addEventListener('click',()=>{ if(!confirm('Esto borrará todas las operaciones guardadas localmente.')) return; localStorage.removeItem(STORAGE_KEY); load(); render(); renderUseful(); });
 
-      // ETA solo hoy
-      const todayEta = state.ops.filter(o=> isTodayStr(o.f_llegada))
-        .sort((x,y)=> (x.ref||'').localeCompare(y.ref||''))
-        .slice(0,20);
-      const $eta = $('#duEta'); $eta.innerHTML='';
-      todayEta.forEach(o=>{
+    // Tabs + botón global refresh
+    $('#tabOps').addEventListener('click',()=>{ $('#tabOps').classList.add('active'); $('#tabDU').classList.remove('active'); $('#panelOps').classList.add('active'); $('#panelDU').classList.remove('active'); });
+    $('#tabDU').addEventListener('click',()=>{ $('#tabDU').classList.add('active'); $('#tabOps').classList.remove('active'); $('#panelDU').classList.add('active'); $('#panelOps').classList.remove('active'); renderUseful(); });
+    $('#btnGlobalRefresh').addEventListener('click',()=>{ render(); renderUseful(); buildClientesSelect(); });
+
+    // ====== DATOS ÚTILES ======
+    function renderUseful(){
+      const ops=state.ops.map(o=>({...o,gastos_total:sumG(o),pendiente:pend(o)}));
+
+      const comp=ops.filter(o=>o.completa).length;
+      $('#kpiComp').textContent=comp;
+      $('#kpiCompSub').textContent=`de ${ops.length} totales`;
+      const saldoTotal=ops.reduce((a,o)=>a+o.pendiente,0);
+      $('#kpiSaldo').textContent=fmt(saldoTotal);
+      const p=ops.filter(o=>o.semaforo==='Pendiente').length, v=ops.filter(o=>o.semaforo==='Verde').length, a=ops.filter(o=>o.semaforo==='Amarillo').length, r=ops.filter(o=>o.semaforo==='Rojo').length, m=ops.filter(o=>o.multas_tipo&&o.multas_tipo!=='ninguna').length;
+      $('#kpiSemMul').innerHTML=`<span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-400"></span>P ${p}</span><span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>V ${v}</span><span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span>A ${a}</span><span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span>R ${r}</span><span class="ml-3 text-slate-500">Multas: ${m}</span>`;
+
+      // Próximas llegadas (hoy)
+      const todayStr=toLocalISO(todayLocal());
+      const llegadasHoy=ops.filter(o=>(o.f_llegada||'')===todayStr);
+      const bETA=$('#duEtaBody'); bETA.innerHTML='';
+      if(llegadasHoy.length===0) $('#duEtaEmpty').classList.remove('hidden'); else $('#duEtaEmpty').classList.add('hidden');
+      llegadasHoy.forEach(o=>{
         const tr=document.createElement('tr');
-        tr.innerHTML = `
-          <td class="px-3 py-2">${o.ref||''}</td>
-          <td class="px-3 py-2">${o.importador||''}</td>
-          <td class="px-3 py-2">${o.ejecutivo||''}</td>
-          <td class="px-3 py-2">${o.f_llegada||''}</td>
-          <td class="px-3 py-2">${paintSemaforo(o.semaforo)}</td>`;
-        $eta.appendChild(tr);
+        tr.innerHTML=`<td class="px-2 py-1">${o.ref||''}</td><td class="px-2 py-1">${o.importador||''}</td><td class="px-2 py-1">${o.ejecutivo||''}</td><td class="px-2 py-1">${o.f_llegada||''}</td><td class="px-2 py-1">${o.semaforo||''}</td>`;
+        bETA.appendChild(tr);
       });
 
-      // modulaciones próximos 7 días
-      const in7 = (d)=>{ if(!d) return false; const t=new Date(); t.setHours(0,0,0,0); const x=new Date(d); if(!isFinite(x)) return false; const diff=(x-t)/86400000; return diff>=0&&diff<=7; };
-      const modRows = state.ops.filter(o=> in7(o.f_modulacion))
-        .sort((x,y)=> (x.f_modulacion||'').localeCompare(y.f_modulacion||''))
-        .slice(0,10);
-      const $mod = $('#duMod'); $mod.innerHTML='';
-      modRows.forEach(o=>{
+      // Próximas modulaciones (7 días)
+      const hoy=todayLocal(); const lim=new Date(hoy); lim.setDate(hoy.getDate()+7);
+      const mods=ops.filter(o=>o.f_modulacion).filter(o=>{const d=new Date(o.f_modulacion); const dd=new Date(d.getFullYear(),d.getMonth(),d.getDate()); return dd>=hoy && dd<=lim;}).sort((a,b)=>a.f_modulacion>b.f_modulacion?1:-1);
+      const bMod=$('#duModBody'); bMod.innerHTML='';
+      mods.forEach(o=>{
         const tr=document.createElement('tr');
-        tr.innerHTML = `<td class="px-3 py-2">${o.ref||''}</td><td class="px-3 py-2">${o.importador||''}</td><td class="px-3 py-2">${o.ejecutivo||''}</td><td class="px-3 py-2">${o.f_modulacion||''}</td>`;
-        $mod.appendChild(tr);
+        tr.innerHTML=`<td class="px-2 py-1">${o.ref||''}</td><td class="px-2 py-1">${o.importador||''}</td><td class="px-2 py-1">${o.ejecutivo||''}</td><td class="px-2 py-1">${o.f_modulacion||''}</td>`;
+        bMod.appendChild(tr);
       });
 
-      // pendientes de facturar por saldo > 0
-      const facRows = state.ops.filter(o=> !o.f_facturacion && saldo(o)>0 )
-        .sort((x,y)=> (saldo(y)-saldo(x))).slice(0,10);
-      const $fac = $('#duFact'); $fac.innerHTML='';
-      facRows.forEach(o=>{
+      // Pendientes de enviar a facturar (sin fecha)
+      const porFac=ops.filter(o=>!o.f_facturacion).sort((a,b)=>b.pendiente-a.pendiente);
+      const bFac=$('#duFactBody'); bFac.innerHTML='';
+      porFac.forEach(o=>{
         const tr=document.createElement('tr');
-        tr.innerHTML = `<td class="px-3 py-2">${o.ref||''}</td><td class="px-3 py-2">${o.importador||''}</td><td class="px-3 py-2">${o.ejecutivo||''}</td><td class="px-3 py-2">${fmt(saldo(o))}</td>`;
-        $fac.appendChild(tr);
+        const btn=`<button class="text-indigo-600 hover:underline btn-f-edit" data-ref="${o.ref||''}">Editar</button>`;
+        tr.innerHTML=`<td class="px-2 py-1">${btn}</td><td class="px-2 py-1">${o.ref||''}</td><td class="px-2 py-1">${o.importador||''}</td><td class="px-2 py-1">${o.ejecutivo||''}</td><td class="px-2 py-1 text-right">${fmt(o.pendiente)}</td>`;
+        bFac.appendChild(tr);
+      });
+      $$('.btn-f-edit').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const ref=btn.dataset.ref;
+          const idx=state.ops.findIndex(x=>x.ref===ref);
+          if(idx>=0) startEdit(idx);
+        });
       });
 
-      // saldo por cliente
-      const byCli = {};
-      state.ops.forEach(o=>{ const s = saldo(o); if (s>0){ byCli[o.importador||'(sin nombre)'] = (byCli[o.importador||'(sin nombre)']||0) + s; }});
-      const list = Object.entries(byCli).sort((a,b)=> b[1]-a[1]);
-      const $sc = $('#duSaldoClientes'); $sc.innerHTML='';
-      list.forEach(([cli, val])=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML = `<td class="px-3 py-2">${cli}</td><td class="px-3 py-2">${fmt(val)}</td>`;
-        $sc.appendChild(tr);
+      // Saldo por cliente
+      const porCli={}; ops.forEach(o=>{const k=o.importador||'(Sin cliente)'; porCli[k]=(porCli[k]||0)+o.pendiente;});
+      const bSC=$('#duSaldoCliente'); bSC.innerHTML='';
+      Object.entries(porCli).sort((a,b)=>b[1]-a[1]).forEach(([cli,saldo])=>{
+        const tr=document.createElement('tr'); tr.innerHTML=`<td class="px-2 py-1">${cli}</td><td class="px-2 py-1 text-right">${fmt(saldo)}</td>`;
+        bSC.appendChild(tr);
       });
+
+      if($('#duNotas').dataset.loaded!=='1'){ $('#duNotas').value=localStorage.getItem(NOTAS_KEY)||''; $('#duNotas').dataset.loaded='1'; }
     }
+    $('#duNotas').addEventListener('input',e=>localStorage.setItem(NOTAS_KEY,e.target.value));
 
-    /* ===== Notas (autoguardado) ===== */
-    const NOTES_KEY = 'ops_notes_v4';
-    function loadNotes(){ const t = localStorage.getItem(NOTES_KEY)||''; $('#notesArea').value = t; }
-    function saveNotes(){ localStorage.setItem(NOTES_KEY, $('#notesArea').value); const ts=new Date().toLocaleString('es-MX'); $('#notesSaved').textContent='Guardado: '+ts; }
-    $('#notesArea').addEventListener('input', ()=>{ saveNotes(); });
+    // CLIENTES: guardar/actualizar
+    $('#cli_guardar').addEventListener('click',(e)=>{
+      e.preventDefault();
+      const nombre=$('#cli_nombre').value.trim();
+      const file=$('#cli_csf').files[0];
+      if(!nombre){alert('Ingresa el nombre del cliente');return}
+      let i=$('#cli_edit_i').value; i=(i===''?-1:+i);
 
-    /* ===== Tabs ===== */
-    function setTab(which){
-      $('#tabOps').classList.toggle('active', which==='ops');
-      $('#tabDU').classList.toggle('active', which==='du');
-      $('#panelOps').classList.toggle('active', which==='ops');
-      $('#panelDU').classList.toggle('active', which==='du');
-      if (which==='du') renderDU();
-    }
-    $('#tabOps').addEventListener('click', ()=> setTab('ops'));
-    $('#tabDU').addEventListener('click',  ()=> setTab('du'));
-
-    /* ===== Boot ===== */
-    document.addEventListener('DOMContentLoaded', ()=>{
-      load();
-      loadNotes();
-      render();
-      setTab('ops');
+      const nowISO=new Date().toISOString();
+      const meta={nombre, csfFileName:file?file.name:(i>=0?state.clientes[i].csfFileName:undefined), csfUpdated: nowISO};
+      if(i>=0) state.clientes[i]=meta; else state.clientes.push(meta);
+      saveClientes(); buildClientesSelect(); renderClientesTabla();
+      $('#cli_nombre').value=''; $('#cli_csf').value=''; $('#cli_edit_i').value='';
     });
+
+    // ====== MODAL NOTAS ======
+    function openNota(idx){
+      state.notaIdx=idx;
+      $('#notaRef').textContent=state.ops[idx].ref||'(sin ref)';
+      $('#notaTxt').value=state.ops[idx].nota||'';
+      $('#notaModal').classList.add('open');
+    }
+    function closeNota(){ $('#notaModal').classList.remove('open'); state.notaIdx=null; }
+    $('#notaCancel').addEventListener('click',closeNota);
+    $('#notaSave').addEventListener('click',()=>{ if(state.notaIdx==null) return; state.ops[state.notaIdx].nota=$('#notaTxt').value; save(); closeNota(); render(); });
+    $('#notaDelete').addEventListener('click',()=>{ if(state.notaIdx==null) return; if(!confirm('¿Eliminar nota?'))return; state.ops[state.notaIdx].nota=''; save(); closeNota(); render(); });
+
+    // ====== PDF COTIZACIÓN ======
+    $('#btnPDF').addEventListener('click',()=>{
+      const temp=collectOp();
+      const total=fmt(sumG(temp));
+      const html=`
+      <html><head><meta charset="utf-8"><title>Cotización</title>
+      <style>body{font-family:Arial,Helvetica,sans-serif;padding:24px}h1{font-size:18px;margin:0 0 8px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #ddd;padding:8px;font-size:12px;text-align:left}th{background:#f3f4f6}</style>
+      </head><body>
+      <h1>Cotización de servicios</h1>
+      <div><strong>Referencia:</strong> ${temp.ref||''}</div>
+      <div><strong>Cliente:</strong> ${temp.importador||temp.contacto||''}</div>
+      <div><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-MX')}</div>
+
+      <table>
+        <thead><tr><th>Concepto</th><th>Importe (MXN)</th></tr></thead>
+        <tbody>
+          ${G_KEYS.map(k=>({k,txt:k.replace('g_','').replaceAll('_',' ')})).map(o=>{
+            const v=temp[o.k]; if(!v) return '';
+            return `<tr><td>${o.txt}</td><td>${fmt(v)}</td></tr>`;
+          }).join('')}
+          <tr><td><strong>Total gastos</strong></td><td><strong>${total}</strong></td></tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top:12px;font-size:12px">* Esta es una cotización estimada con base en los datos capturados.</p>
+      <script>window.onload=()=>{window.print()}</script>
+      </body></html>`;
+      const w=window.open('about:blank','_blank'); w.document.write(html); w.document.close();
+    });
+
+    // Boot
+    load(); loadClientes(); buildClientesSelect(); renderClientesTabla(); render(); renderUseful(); updateGastosPreview();
   </script>
 </body>
 </html>

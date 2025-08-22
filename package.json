@@ -5,16 +5,26 @@
   "main": "main.js",
   "author": "Tu",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EmilianoUIA/operaciones-ce.git"
+  },
+  "homepage": "https://github.com/EmilianoUIA/operaciones-ce",
   "scripts": {
     "start": "electron .",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux",
-    "release:win": "electron-builder --win -p always"
+    "release:win": "electron-builder --win --publish always",
+    "release:all": "electron-builder -mwl --publish always"
   },
   "devDependencies": {
     "electron": "^31.0.0",
     "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-log": "^5.4.2",
+    "electron-updater": "^6.6.2"
   },
   "build": {
     "appId": "com.tuempresa.operaciones",
@@ -25,6 +35,7 @@
       "index.html",
       "icon.png"
     ],
+    "artifactName": "${productName} Setup ${version}.${ext}",
     "win": {
       "target": "nsis",
       "icon": "icon.png"
@@ -44,8 +55,5 @@
         "repo": "operaciones-ce"
       }
     ]
-  },
-  "dependencies": {
-    "electron-updater": "^6.6.2"
   }
 }
